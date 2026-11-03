@@ -1,66 +1,82 @@
-# Estadística Forms Web
+# claudeLearningAllPosibolIt-web
 
-Fecha de creación: 2026-10-19
-Relacionada con: [plan de migración](docs/plans/01-migracion-flutter-a-nuxt.md), [fuentes consultadas](docs/fonts/01-flutter-cursos-y-documentacion.md), [bitácora](bitacora-construccion/01-acceso-y-cuenta-nuxt.md).
+Fecha de creación: 2026-10-19 (heredada de `estadistica-forms-web`)
+Última actualización: 2026-11-03
+Relacionada con: [plan ui 01](docs/plans/ui/01-plan-nuxt-ui-focus-proyectos-e-importaciones.md), [bitácora ui 01](bitacora-construccion/ui/01-nuxt-ui-y-tema-focus.md), [plan de la migración original](docs/plans/01-migracion-flutter-a-nuxt.md).
 
-Versión web de las pantallas de acceso y cuenta de Flutter. Nuxt 4.6.2, Vue 3.5.44, TypeScript 6.0.3, Tailwind CSS 4.3.3, Descope Vue SDK 3.1.19 y pnpm 12.5.1. TypeScript 6 se fija porque los comprobadores actuales de Vue y ESLint todavía no admiten TypeScript 7.
+Web de aprendizaje para la API [claudeLearningAllPosibolIt](../claudeLearningAllPosibolIt). Es una copia de [estadistica-forms-web](../estadistica-forms-web) (`main` en `60e3f59`) con Git propio, igual que la API es una copia de `estadistica-forms-api`. El primer commit (`57752dc`) es la copia exacta; lo demás se construye aquí.
+
+Nuxt 4.6.2, Vue 3.5.44, TypeScript 6.0.3, **Nuxt UI 4.12.0** (Tailwind CSS 4.3.3 incluido), Zod 4.6.7, iconos Lucide locales, Descope Vue SDK 3.1.19 y pnpm 12.5.1. TypeScript 6 se fija porque vue-tsc y ESLint todavía no admiten TypeScript 7.
+
+## Diseño
+
+Nuxt UI es la única biblioteca de componentes. La estética sigue la [captura Focus](docs/fonts/assets/focus-macos-referencia.png): lateral gris violáceo con tarjetas resumen, panel ciruela oscuro, cabecera ilustrada, título grande y fino y filas densas. Modo oscuro por defecto y variante clara desde el menú de cuenta. Fuentes y decisiones en [docs/fonts/ui](docs/fonts/ui).
 
 ## Ubicación
 
 ```text
 KSuT/
-├── estadistica-forms-api/    # API Nest existente
-└── estadistica-forms-web/    # Esta app Nuxt
+├── claudeLearningAllPosibolIt/       # API Nest (copia de estadistica-forms-api)
+├── claudeLearningAllPosibolIt-web/   # Esta app Nuxt
+├── estadistica-forms-api/            # Originales, sin cambios
+└── estadistica-forms-web/
 ```
-
-Flutter permanece en `/Users/benji/Documents/FLUTTER-APP/estadistica_forms/apps/estadistica_forms`. No se modificaron sus archivos para esta implementación. La aplicación web tiene un repositorio Git independiente en [benjamin12062006/estadistica-forms-web](https://github.com/benjamin12062006/estadistica-forms-web). La revisión mencionada en los documentos de migración pertenece al proyecto Flutter de origen.
 
 ## Ejecutar
 
 ```sh
-cd /Users/benji/Documents/KSuT/estadistica-forms-web
+cd /Users/benji/Documents/KSuT/claudeLearningAllPosibolIt-web
 pnpm install
 pnpm dev
 ```
 
-Abrir [http://localhost:3000](http://localhost:3000). pnpm administra Node 24.19.0 para este proyecto mediante `devEngines.runtime`; no hace falta reemplazar el Node global. La primera instalación necesita Internet para descargar dependencias y runtime.
+Abrir [http://localhost:3000](http://localhost:3000). pnpm administra Node 24.19.0 para este proyecto mediante `devEngines.runtime`; no hace falta reemplazar el Node global.
 
-En este equipo ya está preparado el `.env` ignorado con los valores públicos permitidos del proyecto Flutter. En otra máquina:
+El `.env` local (ignorado) se copió del original con los valores públicos de Descope. En otra máquina:
 
 ```sh
 cp .env.example .env
 ```
 
-Completar `NUXT_PUBLIC_DESCOPE_PROJECT_ID`. El Flow por defecto es `sign-up-or-in`; el dominio personalizado de Descope es opcional. Nunca introducir Management Key, claves Turso ni tokens en variables públicas. Reiniciar Nuxt después de cambiar `.env`.
+Completar `NUXT_PUBLIC_DESCOPE_PROJECT_ID`. Nunca introducir Management Key ni tokens en variables públicas. Reiniciar Nuxt después de cambiar `.env`.
 
-La API existente debe estar activa:
+La API debe estar activa en el puerto 8080 (ya admite el origen `http://localhost:3000`):
 
 ```sh
-cd /Users/benji/Documents/KSuT/estadistica-forms-api
+cd /Users/benji/Documents/KSuT/claudeLearningAllPosibolIt
 pnpm start:dev
 ```
 
-La URL cliente predeterminada es `http://127.0.0.1:8080/api/v1`. La API ya admite el origen `http://localhost:3000`. Si se cambia el puerto, debe autorizarse el nuevo origen en la API y en Descope. El retorno del Flow es `http://localhost:3000/auth`; también se conservan los parámetros si una configuración anterior devuelve al `/`.
+La API original y la copia usan el mismo puerto: arrancar solo una.
+
+## Páginas
+
+| Ruta                 | Qué hace                                                                                             |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/auth`, `/session`  | Acceso con Descope y recuperación de sesión (ventana Focus centrada)                                 |
+| `/projects`          | Proyectos de la cuenta; `?estado=listos` o `?estado=por-configurar` filtran                          |
+| `/projects/new`      | Crear proyecto (nombre, país, moneda, canal)                                                         |
+| `/projects/:id`      | Resumen, importaciones del catálogo (subir CSV, seguir el procesamiento, borrar) y eliminar proyecto |
+| `/projects/:id/edit` | Editar o terminar de configurar                                                                      |
+| `/account`           | Datos de la cuenta y cierre de sesión                                                                |
 
 ## Organización
 
 ```text
 app/
-├── pages/          # /auth, /session, /account y entrada
-├── layouts/        # Marca, texto, gráfico y tarjeta compartidos
-├── components/     # Piezas visuales y Flow solo cliente
-├── composables/    # useAccess: estado reactivo y acciones
-├── plugins/        # Composición de SDK, servicios y controlador
-├── middleware/     # Navegación coherente con el estado
-├── services/       # Controlador de acceso y HTTP del perfil
-├── types/          # AppUser, AccessState y contratos usados
-├── utils/          # Validación de configuración y destino por estado
-└── assets/css/     # Tailwind, colores y Roboto local
+├── pages/          # Acceso, cuenta y proyectos
+├── layouts/        # default (acceso) y workspace (lateral + panel)
+├── components/     # FocusCover, WorkspacePage, formularios, filas y tablas
+├── composables/    # useAccess, useProjects, useProjectImports
+├── plugins/        # access (SDK y sesión) y api (servicios con token)
+├── middleware/     # Navegación coherente con el estado de acceso
+├── services/       # Cliente HTTP, proyectos, importaciones, acceso y perfil
+├── types/          # Contratos de la API con comprobaciones de forma
+├── utils/          # Rutas de acceso, formato y comprobaciones pequeñas
+└── assets/css/     # Tailwind + Nuxt UI y tokens Focus
 ```
 
-Las páginas presentan el estado. `useAccess` comparte únicamente estado serializable de interfaz, nunca tokens. El plugin solo cliente conecta el SDK oficial con el controlador y `$fetch`. La restauración comienza con `onNuxtReady`, cuando termina la hidratación. Nest valida la identidad y devuelve el perfil; el middleware del navegador organiza el recorrido, no sustituye al guard del servidor.
-
-El SDK conserva y renueva los tokens. El perfil se lee mediante `GET /users/me`; un `404` permite aprovisionarlo con `PUT`. Después del login se usa el mismo `PUT` idempotente. Un `401` provoca una renovación y un único reintento; otros errores conservan una acción de recuperación. Cancelar o salir invalida las respuestas anteriores. La salida aborta renovaciones pendientes y permite al SDK limpiar su persistencia aun cuando no se confirme la revocación remota.
+El token Descope solo existe en el navegador. Por eso los datos se piden en el cliente (`useAsyncData` con `server: false`) y las páginas del espacio de trabajo se montan solo cuando la sesión está lista. El cliente HTTP renueva el token y reintenta una vez ante un 401, y muestra el mensaje en español que devuelve la API. Nest sigue siendo quien valida identidad, permisos y datos.
 
 ## Comprobaciones
 
@@ -69,11 +85,14 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm build
-pnpm preview
 ```
 
-`preview` sirve la compilación local en el puerto 3000; detener antes `dev` si usa ese puerto. Para producción, ejecutar `.output/server/index.mjs` con un Node compatible e inyectar las variables `NUXT_PUBLIC_*` en el entorno del proceso: el servidor compilado no carga automáticamente `.env`.
+Resultados en la bitácora. El recorrido con sesión real (crear, editar y borrar proyectos; subir un CSV) queda a cargo del usuario: Descope no se automatiza.
 
-La verificación de tipos y compilación se registra en la [bitácora](bitacora-construccion/01-acceso-y-cuenta-nuxt.md). La revisión visual final y el login real quedan a cargo del usuario, que enviará capturas. Recorridos a comprobar: Continuar → Flow → Google/OTP → cuenta, recargar `/account`, cancelar el Flow y cerrar sesión. Un problema de conexión con Nest debe mostrar Reintentar, sin presentar una cuenta simulada.
+## Documentación
 
-Esta entrega cubre las pantallas existentes. El editor de formularios y los espacios estadísticos todavía no estaban implementados en Flutter y quedan fuera de esta migración.
+- `docs/fonts/`: fuentes consultadas (cursos, documentación, contratos de la API).
+- `docs/plans/`: planes antes de implementar.
+- `bitacora-construccion/`: qué se implementó, por qué y cómo se comprobó.
+
+Los archivos sin subcarpeta (`01-…`) vienen del proyecto original y se conservan como historia.

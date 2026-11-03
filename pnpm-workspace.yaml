@@ -1,6 +1,7 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+  vue-demi: false
 minimumReleaseAgeExclude:
   - '@descope/user-management-widget@0.21.5'
   - '@descope/user-profile-widget@0.19.14'

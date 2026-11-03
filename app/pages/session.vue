@@ -9,30 +9,34 @@ const progress = computed(() => {
 
 <template>
   <div>
-    <p class="eyebrow">Tu cuenta</p>
+    <p class="focus-section-label">Tu cuenta</p>
     <template v-if="state.status === 'error'">
-      <AppIcon name="connection" class="mt-7 size-10" />
-      <h1 class="mt-5 text-[28px] leading-tight">
+      <h1 class="mt-3 text-3xl font-light tracking-tight text-highlighted">
         Vamos a intentarlo de nuevo.
       </h1>
-      <p role="alert" class="mt-4 text-base leading-relaxed">
-        {{ state.message }}
-      </p>
-      <button type="button" class="action-primary mt-7" @click="actions.retry">
+      <UAlert
+        class="mt-5"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-cloud-off"
+        :title="state.message"
+        role="alert"
+      />
+      <UButton class="mt-6" size="lg" block @click="actions.retry">
         Reintentar
-      </button>
-      <div v-if="state.stage !== 'configuration'" class="mt-3 text-center">
-        <button type="button" class="action-text" @click="actions.signOut">
+      </UButton>
+      <div v-if="state.stage !== 'configuration'" class="mt-2 text-center">
+        <UButton color="neutral" variant="ghost" @click="actions.signOut">
           Volver al inicio
-        </button>
+        </UButton>
       </div>
     </template>
     <template v-else>
       <SessionProgress :message="progress" />
       <div v-if="state.status === 'preparingProfile'" class="text-center">
-        <button type="button" class="action-text" @click="actions.signOut">
+        <UButton color="neutral" variant="ghost" @click="actions.signOut">
           Cancelar
-        </button>
+        </UButton>
       </div>
     </template>
   </div>

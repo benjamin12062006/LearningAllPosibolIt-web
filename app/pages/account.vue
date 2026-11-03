@@ -1,51 +1,48 @@
 <script setup lang="ts">
+definePageMeta({ layout: 'workspace' });
+
 const { state, actions } = useAccess();
+
+const user = computed(() =>
+  state.value.status === 'ready' ? state.value.user : null,
+);
+const title = computed(() => user.value?.displayName ?? 'Tu cuenta');
 const memberSince = computed(() =>
-  state.value.status === 'ready'
-    ? new Intl.DateTimeFormat('es', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric',
-        timeZone: 'America/New_York',
-      }).format(new Date(state.value.user.createdAt))
-    : '',
+  user.value ? formatDate(user.value.createdAt) : '',
 );
 </script>
 
 <template>
-  <div v-if="state.status === 'ready'">
-    <p class="eyebrow">Dentro de tu cuenta</p>
-    <div
-      class="mt-6 flex size-16 items-center justify-center rounded-full bg-sage"
-    >
-      <AppIcon name="user" class="size-7" />
-    </div>
-    <h1
-      class="mt-7 text-[29px] leading-tight tracking-[-0.02em] sm:text-[32px]"
-    >
-      {{ state.user.displayName ?? 'Bienvenido a tu espacio.' }}
-    </h1>
-    <p class="mt-4 text-base leading-relaxed">
-      Tu sesión está activa y tu cuenta está lista.
-    </p>
-    <dl class="mt-6 border-t border-muted/30 pt-6">
-      <dt class="eyebrow">Correo de tu cuenta</dt>
-      <dd class="mt-2 text-base break-words select-text">
-        {{ state.user.email ?? 'Sin correo disponible' }}
-      </dd>
-      <dt class="eyebrow mt-7">Miembro desde</dt>
-      <dd class="mt-2 text-base">
-        <time :datetime="state.user.createdAt">{{ memberSince }}</time>
-      </dd>
+  <WorkspacePage id="cuenta" :title="title" compact-cover>
+    <template #subtitle>
+      <p class="mt-1 text-sm text-muted">
+        Tu sesión está activa y tu cuenta está lista.
+      </p>
+    </template>
+
+    <dl v-if="user" class="max-w-xl">
+      <div class="focus-row justify-between">
+        <dt class="text-sm text-muted">Correo</dt>
+        <dd class="text-sm break-all select-text">
+          {{ user.email ?? 'Sin correo disponible' }}
+        </dd>
+      </div>
+      <div class="focus-row justify-between">
+        <dt class="text-sm text-muted">Miembro desde</dt>
+        <dd class="text-sm">
+          <time :datetime="user.createdAt">{{ memberSince }}</time>
+        </dd>
+      </div>
     </dl>
-    <button
-      type="button"
-      class="action-secondary mt-10"
+
+    <UButton
+      class="mt-8"
+      color="neutral"
+      variant="soft"
+      icon="i-lucide-log-out"
       @click="actions.signOut"
     >
-      <AppIcon name="logout" class="size-5" />
       Cerrar sesión
-    </button>
-  </div>
-  <SessionProgress v-else />
+    </UButton>
+  </WorkspacePage>
 </template>

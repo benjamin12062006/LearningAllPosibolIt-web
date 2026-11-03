@@ -35,13 +35,11 @@ onBeforeRouteLeave(() => {
 
 <template>
   <div v-if="state.status === 'signedOut' || state.status === 'authenticating'">
-    <p class="eyebrow">Tu espacio personal</p>
-    <h1
-      class="mt-4 text-[29px] leading-tight tracking-[-0.015em] sm:text-[32px]"
-    >
+    <p class="focus-section-label">Tu espacio de trabajo</p>
+    <h1 class="mt-3 text-3xl font-light tracking-tight text-highlighted">
       {{ active ? 'Ya casi estás dentro.' : 'Qué bueno verte.' }}
     </h1>
-    <p class="mt-4 text-lg leading-relaxed">
+    <p class="mt-3 text-base text-toned">
       {{
         active
           ? 'Continúa para acceder a tu cuenta.'
@@ -54,28 +52,31 @@ onBeforeRouteLeave(() => {
         <DescopeFlow :key="state.attempt" :attempt="state.attempt" />
       </ClientOnly>
       <div class="mt-6 flex justify-center">
-        <button type="button" class="action-text" @click="cancel">
+        <UButton color="neutral" variant="ghost" @click="cancel">
           Cancelar
-        </button>
+        </UButton>
       </div>
     </template>
     <template v-else>
-      <AppIcon name="fingerprint" class="mx-auto mt-10 mb-9 size-16" />
-      <button type="button" class="action-primary" @click="actions.beginSignIn">
-        <AppIcon name="arrow" class="size-5" />
-        Continuar
-      </button>
-      <p
-        v-if="state.notice"
-        role="status"
-        class="mt-4 text-sm leading-relaxed text-muted"
+      <UIcon
+        name="i-lucide-fingerprint"
+        class="mx-auto mt-9 mb-8 block size-14 text-primary"
+      />
+      <UButton
+        size="lg"
+        block
+        trailing-icon="i-lucide-arrow-right"
+        @click="actions.beginSignIn"
       >
+        Continuar
+      </UButton>
+      <p v-if="state.notice" role="status" class="mt-4 text-sm text-muted">
         {{ state.notice }}
       </p>
     </template>
 
     <footer
-      class="mt-10 border-t border-muted/30 pt-6 text-center text-sm text-muted"
+      class="mt-9 border-t border-default pt-5 text-center text-sm text-muted"
     >
       Tu cuenta, bajo tu control.
     </footer>

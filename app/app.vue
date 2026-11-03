@@ -1,6 +1,9 @@
+<!-- UApp aporta el proveedor que necesitan toasts, tooltips y modales de Nuxt UI. -->
 <template>
-  <NuxtRouteAnnouncer />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <UApp :toaster="{ position: 'bottom-right' }">
+    <NuxtRouteAnnouncer />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
 </template>

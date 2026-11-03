@@ -1,27 +1,23 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app';
+
 defineProps<{ error: NuxtError }>();
 </script>
 
+<!-- UError de Nuxt UI dentro de UApp, para que también aquí haya tema y toasts. -->
 <template>
-  <NuxtLayout>
-    <p class="eyebrow">Estadística</p>
-    <h1 class="mt-5 text-3xl">
-      {{
-        error.statusCode === 404
-          ? 'Esta página no está aquí.'
-          : 'Algo interrumpió el camino.'
-      }}
-    </h1>
-    <p class="mt-4 leading-relaxed">
-      Puedes volver a tu cuenta y continuar desde allí.
-    </p>
-    <button
-      type="button"
-      class="action-primary mt-8"
-      @click="clearError({ redirect: '/auth' })"
-    >
-      Volver al inicio
-    </button>
-  </NuxtLayout>
+  <UApp>
+    <UError
+      :error="{
+        statusCode: error.statusCode,
+        statusMessage:
+          error.statusCode === 404
+            ? 'Esta página no está aquí.'
+            : 'Algo interrumpió el camino.',
+        message: 'Puedes volver a tus proyectos y continuar desde allí.',
+      }"
+      redirect="/projects"
+      :clear="{ label: 'Volver a mis proyectos', color: 'primary' }"
+    />
+  </UApp>
 </template>
