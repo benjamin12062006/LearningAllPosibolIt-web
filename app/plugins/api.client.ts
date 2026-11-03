@@ -1,6 +1,7 @@
 import { createApiClient } from '../services/api-client';
 import { createImportsService } from '../services/imports';
 import { createProjectsService } from '../services/projects';
+import { createRulesetsService } from '../services/rulesets';
 
 /** Servicios de datos; usan la sesión Descope que prepara el plugin de acceso. */
 export default defineNuxtPlugin({
@@ -13,6 +14,7 @@ export default defineNuxtPlugin({
       provide: {
         projects: createProjectsService(api),
         imports: createImportsService(api),
+        rulesets: createRulesetsService(api),
       },
     };
   },

@@ -88,6 +88,8 @@ function messageOf(failure: unknown) {
     />
 
     <template v-else-if="project">
+      <ProjectNav :project-id="project.id" class="mb-6" />
+
       <UAlert
         v-if="project.configurationStatus === 'required'"
         class="mb-6"
