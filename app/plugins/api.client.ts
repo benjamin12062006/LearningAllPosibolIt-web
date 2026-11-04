@@ -1,4 +1,5 @@
 import { createApiClient } from '../services/api-client';
+import { createEvaluationsService } from '../services/evaluations';
 import { createImportsService } from '../services/imports';
 import { createProjectsService } from '../services/projects';
 import { createRulesetsService } from '../services/rulesets';
@@ -15,6 +16,7 @@ export default defineNuxtPlugin({
         projects: createProjectsService(api),
         imports: createImportsService(api),
         rulesets: createRulesetsService(api),
+        evaluations: createEvaluationsService(api),
       },
     };
   },

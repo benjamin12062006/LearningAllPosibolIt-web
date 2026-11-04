@@ -4,10 +4,21 @@ const DATE_FORMAT = new Intl.DateTimeFormat('es', {
   year: 'numeric',
 });
 
+const DATE_TIME_FORMAT = new Intl.DateTimeFormat('es', {
+  day: 'numeric',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
 const SIZE_UNITS = ['B', 'KB', 'MB'] as const;
 
 export function formatDate(isoDate: string) {
   return DATE_FORMAT.format(new Date(isoDate));
+}
+
+export function formatDateTime(isoDate: string) {
+  return DATE_TIME_FORMAT.format(new Date(isoDate));
 }
 
 /** 1 KB = 1024 B, como cuenta la API sus límites (10 MiB). */

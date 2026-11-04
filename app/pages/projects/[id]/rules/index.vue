@@ -7,6 +7,8 @@ const projectId = computed(() => String(route.params.id));
 const { project } = useProject(projectId);
 const { rulesets, hasMore, status, error, refresh } = useRulesets(projectId);
 
+const isEvaluateOpen = ref(false);
+
 const isFirstLoad = computed(
   () => status.value === 'pending' && rulesets.value.length === 0,
 );
@@ -15,9 +17,21 @@ const isFirstLoad = computed(
 <template>
   <WorkspacePage id="reglas" title="Reglas">
     <template #title-actions>
-      <UButton :to="`/projects/${projectId}/rules/new`" icon="i-lucide-plus">
-        Nueva revisión
-      </UButton>
+      <div class="flex flex-wrap gap-2">
+        <UButton
+          v-if="rulesets.length > 0"
+          icon="i-lucide-play"
+          color="neutral"
+          variant="soft"
+          @click="isEvaluateOpen = true"
+        >
+          Evaluar
+        </UButton>
+        <UButton :to="`/projects/${projectId}/rules/new`" icon="i-lucide-plus">
+          Nueva revisión
+        </UButton>
+      </div>
+      <EvaluateDialog v-model:open="isEvaluateOpen" :project-id="projectId" />
     </template>
 
     <template #subtitle>

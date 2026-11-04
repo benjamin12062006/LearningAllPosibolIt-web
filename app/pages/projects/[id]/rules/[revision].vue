@@ -16,6 +16,7 @@ const revision = computed(() => Number(route.params.revision));
 const { ruleset, status, error, refresh } = useRuleset(projectId, revision);
 
 const title = computed(() => `Revisión ${route.params.revision}`);
+const isEvaluateOpen = ref(false);
 
 /** Todos los datos de Google en el mismo orden, mapeados o no. */
 const mappingRows = computed(() =>
@@ -38,15 +39,25 @@ function columnFor(attribute: ProductAttribute) {
 <template>
   <WorkspacePage id="revision" :title="title" compact-cover>
     <template #title-actions>
-      <UButton
+      <div v-if="ruleset" class="flex flex-wrap gap-2">
+        <UButton
+          :to="`/projects/${projectId}/rules/new?base=${ruleset.revision}`"
+          icon="i-lucide-copy-plus"
+          color="neutral"
+          variant="soft"
+        >
+          Usar como base
+        </UButton>
+        <UButton icon="i-lucide-play" @click="isEvaluateOpen = true">
+          Evaluar con esta revisión
+        </UButton>
+      </div>
+      <EvaluateDialog
         v-if="ruleset"
-        :to="`/projects/${projectId}/rules/new?base=${ruleset.revision}`"
-        icon="i-lucide-copy-plus"
-        color="neutral"
-        variant="soft"
-      >
-        Usar como base
-      </UButton>
+        v-model:open="isEvaluateOpen"
+        :project-id="projectId"
+        :default-revision="ruleset.revision"
+      />
     </template>
 
     <template #subtitle>
