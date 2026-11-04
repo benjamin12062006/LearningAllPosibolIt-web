@@ -7,15 +7,8 @@ const route = useRoute();
 const projectId = computed(() => String(route.params.id));
 const evaluationId = computed(() => String(route.params.evaluationId));
 
-const {
-  evaluation,
-  sample,
-  isActive,
-  isWaitingTooLong,
-  status,
-  error,
-  refresh,
-} = useEvaluation(projectId, evaluationId);
+const { evaluation, isActive, isWaitingTooLong, status, error, refresh } =
+  useEvaluation(projectId, evaluationId);
 
 // El nombre del archivo evaluado, para no mostrar solo un id.
 const { snapshot } = useImportSnapshot(
@@ -149,15 +142,12 @@ const sourceSummary = computed(() => {
           />
         </div>
 
-        <section aria-labelledby="muestra" class="mt-10">
-          <h2 id="muestra" class="text-lg font-medium text-highlighted">
-            Primeras filas
-          </h2>
-          <p class="mt-1 text-sm text-muted">
-            Las {{ sample.length }} primeras del CSV, en su orden.
-          </p>
-          <EvaluationRowsTable :rows="sample" class="mt-3" />
-        </section>
+        <EvaluationReport
+          :project-id="projectId"
+          :evaluation-id="evaluationId"
+          :counts="evaluation.counts"
+          class="mt-10"
+        />
       </template>
     </template>
   </WorkspacePage>

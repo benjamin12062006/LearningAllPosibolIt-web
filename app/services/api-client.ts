@@ -7,6 +7,8 @@ export interface ApiRequest {
   method?: HttpMethod;
   body?: Record<string, unknown> | FormData;
   query?: Record<string, string | number>;
+  /** `blob` para archivos (por ejemplo `errores.csv`): un enlace no enviaría el token. */
+  responseType?: 'json' | 'blob';
 }
 
 /** Error de un campo concreto, tal como lo devuelve la validación de Nest. */
@@ -45,7 +47,7 @@ export function createApiClient(
 ): ApiClient {
   async function request(
     path: string,
-    { method = 'GET', body, query }: ApiRequest = {},
+    { method = 'GET', body, query, responseType = 'json' }: ApiRequest = {},
   ) {
     if (!session) {
       throw new ApiFailure(401, 'Inicia sesión para continuar.');
@@ -58,8 +60,9 @@ export function createApiClient(
           method,
           body,
           query,
+          responseType,
           headers: {
-            Accept: 'application/json',
+            Accept: responseType === 'blob' ? '*/*' : 'application/json',
             Authorization: `Bearer ${token}`,
           },
           credentials: 'omit',

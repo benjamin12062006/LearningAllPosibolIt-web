@@ -5,6 +5,7 @@ import {
   isRecord,
 } from '../utils/guards';
 import { isPublicError, type PublicError } from './imports';
+import { isPageInfo, type PageInfo } from './projects';
 
 /** Forma de `EvaluationView` y `EvaluationRowView` en la API (`evaluations.types.ts`). */
 export type EvaluationStatus = 'queued' | 'running' | 'succeeded' | 'failed';
@@ -54,6 +55,12 @@ export interface EvaluationDetail {
   sample: EvaluationRow[];
 }
 
+/** Una página del informe (`GET …/evaluations/:id/rows`). */
+export interface EvaluationRowsPage {
+  rows: EvaluationRow[];
+  page: PageInfo;
+}
+
 /** Lo que pide `POST /projects/:id/evaluations`. */
 export interface EvaluationRequest {
   snapshotId: string;
@@ -83,6 +90,17 @@ export function isEvaluationDetail(value: unknown): value is EvaluationDetail {
     isEvaluation(value.evaluation) &&
     Array.isArray(value.sample) &&
     value.sample.every(isEvaluationRow)
+  );
+}
+
+export function isEvaluationRowsPage(
+  value: unknown,
+): value is EvaluationRowsPage {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.rows) &&
+    value.rows.every(isEvaluationRow) &&
+    isPageInfo(value.page)
   );
 }
 

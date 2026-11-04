@@ -7,8 +7,9 @@ import { isActiveEvaluation } from '../types/evaluations';
 const EVALUATION_POLLING = { intervalMs: 2_000, timeoutMs: 600_000 } as const;
 
 /**
- * Una evaluación y su muestra. Mientras está en cola o evaluándose se vuelve a
- * pedir sola; se detiene al terminar, al agotar el tiempo o al salir de la página.
+ * Una evaluación. Mientras está en cola o evaluándose se vuelve a pedir sola;
+ * se detiene al terminar, al agotar el tiempo o al salir de la página. La
+ * muestra de la API no se usa: la primera página del informe da esas filas.
  */
 export function useEvaluation(
   projectId: MaybeRefOrGetter<string>,
@@ -23,7 +24,6 @@ export function useEvaluation(
   );
 
   const evaluation = computed(() => data.value?.evaluation ?? null);
-  const sample = computed(() => data.value?.sample ?? []);
   const isActive = computed(
     () => evaluation.value !== null && isActiveEvaluation(evaluation.value),
   );
@@ -50,7 +50,6 @@ export function useEvaluation(
 
   return {
     evaluation,
-    sample,
     isActive,
     isWaitingTooLong,
     status,

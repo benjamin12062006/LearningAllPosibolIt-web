@@ -1,7 +1,10 @@
 import {
   isEvaluationDetail,
+  isEvaluationRowsPage,
   type EvaluationDetail,
   type EvaluationRequest,
+  type EvaluationRowsPage,
+  type RowOutcome,
 } from '../types/evaluations';
 import { isNonEmptyString, isRecord } from '../utils/guards';
 import { invalidResponse, type ApiClient } from './api-client';
@@ -31,16 +34,50 @@ export function createEvaluationsService(api: ApiClient) {
       evaluationId: string,
     ): Promise<EvaluationDetail> {
       const response = await api.request(
-        `${evaluationsPath(projectId)}/${encodeURIComponent(evaluationId)}`,
+        evaluationPath(projectId, evaluationId),
       );
       if (!isEvaluationDetail(response)) throw invalidResponse();
       return response;
     },
+
+    /** Sin `outcome`, todas las filas. La API responde 409 si no terminó bien. */
+    async rows(
+      projectId: string,
+      evaluationId: string,
+      { outcome, limit, offset }: RowsQuery,
+    ): Promise<EvaluationRowsPage> {
+      const response = await api.request(
+        `${evaluationPath(projectId, evaluationId)}/rows`,
+        { query: { limit, offset, ...(outcome ? { outcome } : {}) } },
+      );
+      if (!isEvaluationRowsPage(response)) throw invalidResponse();
+      return response;
+    },
+
+    /** `errores.csv` en español: filas inválidas con problema y corrección. */
+    async errorsCsv(projectId: string, evaluationId: string): Promise<Blob> {
+      const response = await api.request(
+        `${evaluationPath(projectId, evaluationId)}/errors.csv`,
+        { query: { lang: 'es' }, responseType: 'blob' },
+      );
+      if (response instanceof Blob) return response;
+      throw invalidResponse();
+    },
   };
+}
+
+export interface RowsQuery {
+  outcome: RowOutcome | null;
+  limit: number;
+  offset: number;
 }
 
 export type EvaluationsService = ReturnType<typeof createEvaluationsService>;
 
 function evaluationsPath(projectId: string) {
   return `/projects/${encodeURIComponent(projectId)}/evaluations`;
+}
+
+function evaluationPath(projectId: string, evaluationId: string) {
+  return `${evaluationsPath(projectId)}/${encodeURIComponent(evaluationId)}`;
 }

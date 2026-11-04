@@ -113,6 +113,12 @@ export interface RulesetList {
   page: PageInfo;
 }
 
+/** Nombre legible de un atributo que llega como texto (por ejemplo, en un problema). */
+export function attributeLabel(name: string) {
+  const match = Object.entries(ATTRIBUTE_LABELS).find(([key]) => key === name);
+  return match ? match[1] : name;
+}
+
 export function isRequiredAttribute(attribute: ProductAttribute) {
   return REQUIRED_ATTRIBUTES.includes(attribute);
 }
