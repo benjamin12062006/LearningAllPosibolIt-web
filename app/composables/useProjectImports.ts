@@ -71,3 +71,26 @@ export function useProjectImports(projectId: MaybeRefOrGetter<string>) {
 function wait(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
+
+/** Cabeceras de una importación, para elegir columnas al mapear. */
+export function useImportSnapshot(
+  projectId: MaybeRefOrGetter<string>,
+  snapshotId: MaybeRefOrGetter<string | null>,
+) {
+  const { $imports } = useNuxtApp();
+
+  const { data, status, error } = useAsyncData(
+    () => `snapshot:${toValue(projectId)}:${toValue(snapshotId) ?? 'ninguna'}`,
+    () => {
+      const id = toValue(snapshotId);
+      return id
+        ? $imports.findSnapshot(toValue(projectId), id)
+        : Promise.resolve(null);
+    },
+    { server: false },
+  );
+
+  const headers = computed(() => data.value?.headers ?? []);
+
+  return { snapshot: data, headers, status, error };
+}

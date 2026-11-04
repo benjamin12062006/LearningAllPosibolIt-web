@@ -1,6 +1,7 @@
 import {
   isRulesetList,
   isRulesetVersion,
+  type RulesetInput,
   type RulesetList,
   type RulesetVersion,
 } from '../types/rulesets';
@@ -25,15 +26,31 @@ export function createRulesetsService(api: ApiClient) {
       const response = await api.request(
         `${rulesetsPath(projectId)}/${revision}`,
       );
-      if (isRecord(response) && isRulesetVersion(response.ruleset)) {
-        return response.ruleset;
-      }
-      throw invalidResponse();
+      return readRuleset(response);
+    },
+
+    /** La API asigna la revisión siguiente; las anteriores no cambian. */
+    async create(
+      projectId: string,
+      input: RulesetInput,
+    ): Promise<RulesetVersion> {
+      const response = await api.request(rulesetsPath(projectId), {
+        method: 'POST',
+        body: { mapping: input.mapping, rules: input.rules },
+      });
+      return readRuleset(response);
     },
   };
 }
 
 export type RulesetsService = ReturnType<typeof createRulesetsService>;
+
+function readRuleset(response: unknown): RulesetVersion {
+  if (isRecord(response) && isRulesetVersion(response.ruleset)) {
+    return response.ruleset;
+  }
+  throw invalidResponse();
+}
 
 function rulesetsPath(projectId: string) {
   return `/projects/${encodeURIComponent(projectId)}/rulesets`;

@@ -102,6 +102,12 @@ export interface RulesetVersion {
   createdAt: string;
 }
 
+/** Body de `POST /projects/:id/rulesets`. */
+export interface RulesetInput {
+  mapping: AttributeMapping[];
+  rules: Rule[];
+}
+
 export interface RulesetList {
   rulesets: RulesetVersion[];
   page: PageInfo;
@@ -163,7 +169,7 @@ function isRule(value: unknown): value is Rule {
   return false;
 }
 
-function isProductAttribute(value: unknown): value is ProductAttribute {
+export function isProductAttribute(value: unknown): value is ProductAttribute {
   return PRODUCT_ATTRIBUTES.some((attribute) => attribute === value);
 }
 

@@ -37,6 +37,18 @@ function columnFor(attribute: ProductAttribute) {
 
 <template>
   <WorkspacePage id="revision" :title="title" compact-cover>
+    <template #title-actions>
+      <UButton
+        v-if="ruleset"
+        :to="`/projects/${projectId}/rules/new?base=${ruleset.revision}`"
+        icon="i-lucide-copy-plus"
+        color="neutral"
+        variant="soft"
+      >
+        Usar como base
+      </UButton>
+    </template>
+
     <template #subtitle>
       <p v-if="ruleset" class="mt-1 text-sm text-muted">
         Guardada el {{ formatDate(ruleset.createdAt) }}. No se modifica: para

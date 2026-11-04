@@ -14,6 +14,12 @@ const isFirstLoad = computed(
 
 <template>
   <WorkspacePage id="reglas" title="Reglas">
+    <template #title-actions>
+      <UButton :to="`/projects/${projectId}/rules/new`" icon="i-lucide-plus">
+        Nueva revisión
+      </UButton>
+    </template>
+
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
         {{ project?.name ?? 'Proyecto' }} · cada revisión guarda el mapeo y las
@@ -41,6 +47,13 @@ const isFirstLoad = computed(
       icon="i-lucide-list-checks"
       title="Todavía no hay reglas"
       description="Una revisión dice qué columna del CSV corresponde a cada dato de Google y cómo limpiarlo."
+      :actions="[
+        {
+          label: 'Crear la primera',
+          icon: 'i-lucide-plus',
+          to: `/projects/${projectId}/rules/new`,
+        },
+      ]"
     />
 
     <template v-else>

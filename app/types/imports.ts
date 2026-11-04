@@ -49,6 +49,14 @@ export interface ImportAcceptance {
   jobId: string;
 }
 
+/** Importación con sus cabeceras (`GET …/imports/:snapshotId`); `null` hasta que está lista. */
+export interface ImportSnapshot {
+  id: string;
+  originalName: string;
+  status: ImportStatus;
+  headers: string[] | null;
+}
+
 export interface ImportUpload {
   file: File;
   idColumn: string;
@@ -107,6 +115,18 @@ export function isImportAcceptance(value: unknown): value is ImportAcceptance {
     isRecord(value) &&
     isNonEmptyString(value.snapshotId) &&
     isNonEmptyString(value.jobId)
+  );
+}
+
+export function isImportSnapshot(value: unknown): value is ImportSnapshot {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.id) &&
+    typeof value.originalName === 'string' &&
+    isImportStatus(value.status) &&
+    (value.headers === null ||
+      (Array.isArray(value.headers) &&
+        value.headers.every((header) => typeof header === 'string')))
   );
 }
 

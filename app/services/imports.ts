@@ -2,9 +2,11 @@ import {
   isImportAcceptance,
   isImportJob,
   isImportList,
+  isImportSnapshot,
   type ImportAcceptance,
   type ImportJob,
   type ImportList,
+  type ImportSnapshot,
   type ImportUpload,
 } from '../types/imports';
 import { isRecord } from '../utils/guards';
@@ -34,6 +36,20 @@ export function createImportsService(api: ApiClient) {
       });
       if (!isImportAcceptance(response)) throw invalidResponse();
       return response;
+    },
+
+    /** Solo se usa la importación (sus cabeceras); la muestra de filas se ignora. */
+    async findSnapshot(
+      projectId: string,
+      snapshotId: string,
+    ): Promise<ImportSnapshot> {
+      const response = await api.request(
+        `${projectPath(projectId)}/imports/${encodeURIComponent(snapshotId)}`,
+      );
+      if (isRecord(response) && isImportSnapshot(response.snapshot)) {
+        return response.snapshot;
+      }
+      throw invalidResponse();
     },
 
     async findJob(projectId: string, jobId: string): Promise<ImportJob> {
