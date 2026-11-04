@@ -14,6 +14,11 @@ const items = computed<NavigationMenuItem[]>(() => {
       exact: true,
     },
     { label: 'Reglas', icon: 'i-lucide-list-checks', to: `${base}/rules` },
+    {
+      label: 'Evaluaciones',
+      icon: 'i-lucide-clipboard-check',
+      to: `${base}/evaluations`,
+    },
   ];
 });
 </script>

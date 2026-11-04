@@ -55,6 +55,12 @@ export interface EvaluationDetail {
   sample: EvaluationRow[];
 }
 
+/** Historial del proyecto (`GET …/evaluations`), sin muestra. */
+export interface EvaluationList {
+  evaluations: Evaluation[];
+  page: PageInfo;
+}
+
 /** Una página del informe (`GET …/evaluations/:id/rows`). */
 export interface EvaluationRowsPage {
   rows: EvaluationRow[];
@@ -90,6 +96,15 @@ export function isEvaluationDetail(value: unknown): value is EvaluationDetail {
     isEvaluation(value.evaluation) &&
     Array.isArray(value.sample) &&
     value.sample.every(isEvaluationRow)
+  );
+}
+
+export function isEvaluationList(value: unknown): value is EvaluationList {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.evaluations) &&
+    value.evaluations.every(isEvaluation) &&
+    isPageInfo(value.page)
   );
 }
 

@@ -61,10 +61,11 @@ La API original y la copia usan el mismo puerto: arrancar solo una.
 | `/projects/:id/rules`                     | Revisiones de reglas, de la más reciente a la más antigua; «Evaluar» abre el diálogo de evaluación                 |
 | `/projects/:id/rules/new`                 | Crear la revisión siguiente (`?base=N` parte de la revisión N): mapeo de columnas y reglas                         |
 | `/projects/:id/rules/:revision`           | Una revisión en lectura; «Usar como base» y «Evaluar con esta revisión»                                            |
+| `/projects/:id/evaluations`               | Historial de evaluaciones, de la más reciente a la más antigua                                                     |
 | `/projects/:id/evaluations/:evaluationId` | Avance de una evaluación, conteos, informe filtrable (`?resultado=invalidas&pagina=2`) y descarga de `errores.csv` |
 | `/account`                                | Datos de la cuenta y cierre de sesión                                                                              |
 
-Las evaluaciones no tienen una lista propia: la API `claudeLearningAllPosibolIt` todavía no las lista, así que se llega a cada una desde el diálogo que la lanza o por su URL ([plan de reglas y evaluaciones](docs/plans/feature/rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md), incremento 5).
+El historial `/projects/:id/evaluations` usa `GET /projects/:id/evaluations`, añadido a la API `claudeLearningAllPosibolIt` el 2026-11-04 ([plan 02 de la API](../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md)); necesita una API que ya incluya esa ruta.
 
 ## Organización
 

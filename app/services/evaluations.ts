@@ -1,13 +1,17 @@
 import {
   isEvaluationDetail,
+  isEvaluationList,
   isEvaluationRowsPage,
   type EvaluationDetail,
+  type EvaluationList,
   type EvaluationRequest,
   type EvaluationRowsPage,
   type RowOutcome,
 } from '../types/evaluations';
 import { isNonEmptyString, isRecord } from '../utils/guards';
 import { invalidResponse, type ApiClient } from './api-client';
+
+const EVALUATION_LIST_LIMIT = 100;
 
 export function createEvaluationsService(api: ApiClient) {
   return {
@@ -27,6 +31,15 @@ export function createEvaluationsService(api: ApiClient) {
         return response.evaluationId;
       }
       throw invalidResponse();
+    },
+
+    /** De la más reciente a la más antigua; 100 es el máximo de la API. */
+    async list(projectId: string): Promise<EvaluationList> {
+      const response = await api.request(evaluationsPath(projectId), {
+        query: { limit: EVALUATION_LIST_LIMIT },
+      });
+      if (!isEvaluationList(response)) throw invalidResponse();
+      return response;
     },
 
     async find(

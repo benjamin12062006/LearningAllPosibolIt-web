@@ -57,3 +57,19 @@ export function useEvaluation(
     refresh,
   };
 }
+
+/** Historial de evaluaciones del proyecto, de la más reciente a la más antigua. */
+export function useEvaluations(projectId: MaybeRefOrGetter<string>) {
+  const { $evaluations } = useNuxtApp();
+
+  const { data, status, error, refresh } = useAsyncData(
+    () => `evaluations:${toValue(projectId)}`,
+    () => $evaluations.list(toValue(projectId)),
+    { server: false },
+  );
+
+  const evaluations = computed(() => data.value?.evaluations ?? []);
+  const hasMore = computed(() => data.value?.page.hasMore ?? false);
+
+  return { evaluations, hasMore, status, error, refresh };
+}
