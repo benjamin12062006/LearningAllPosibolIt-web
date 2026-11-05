@@ -101,6 +101,12 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
         :feed="feed"
         @changed="onDeliveryChanged"
       />
+      <FeedAutomation
+        :project-id="projectId"
+        :feed="feed"
+        @saved="replaceFeed"
+        @finished="refresh()"
+      />
       <FeedVersions :project-id="projectId" :feed-id="feed.id" />
     </div>
 

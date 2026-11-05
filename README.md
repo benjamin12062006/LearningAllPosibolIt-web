@@ -51,19 +51,20 @@ La API original y la copia usan el mismo puerto: arrancar solo una.
 
 ## Páginas
 
-| Ruta                                      | Qué hace                                                                                                                                                                            |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/auth`, `/session`                       | Acceso con Descope y recuperación de sesión (ventana Focus centrada)                                                                                                                |
-| `/projects`                               | Proyectos de la cuenta; `?estado=listos` o `?estado=por-configurar` filtran                                                                                                         |
-| `/projects/new`                           | Crear proyecto (nombre, país, moneda, canal)                                                                                                                                        |
-| `/projects/:id`                           | Resumen, importaciones del catálogo (subir CSV, seguir el procesamiento, borrar) y eliminar proyecto                                                                                |
-| `/projects/:id/edit`                      | Editar o terminar de configurar                                                                                                                                                     |
-| `/projects/:id/rules`                     | Revisiones de reglas, de la más reciente a la más antigua; «Evaluar» abre el diálogo de evaluación                                                                                  |
-| `/projects/:id/rules/new`                 | Crear la revisión siguiente (`?base=N` parte de la revisión N): mapeo de columnas y reglas                                                                                          |
-| `/projects/:id/rules/:revision`           | Una revisión en lectura; «Usar como base» y «Evaluar con esta revisión»                                                                                                             |
-| `/projects/:id/evaluations`               | Historial de evaluaciones, de la más reciente a la más antigua                                                                                                                      |
-| `/projects/:id/evaluations/:evaluationId` | Avance de una evaluación, conteos, informe filtrable (`?resultado=invalidas&pagina=2`), descarga de `errores.csv` y exportación confirmada de `productos.tsv` (`?exportacion=<id>`) |
-| `/account`                                | Datos de la cuenta y cierre de sesión                                                                                                                                               |
+| Ruta                                      | Qué hace                                                                                                                                                                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/auth`, `/session`                       | Acceso con Descope y recuperación de sesión (ventana Focus centrada)                                                                                                                                       |
+| `/projects`                               | Proyectos de la cuenta; `?estado=listos` o `?estado=por-configurar` filtran                                                                                                                                |
+| `/projects/new`                           | Crear proyecto (nombre, país, moneda, canal)                                                                                                                                                               |
+| `/projects/:id`                           | Resumen, importaciones del catálogo (subir CSV, seguir el procesamiento, borrar) y eliminar proyecto                                                                                                       |
+| `/projects/:id/edit`                      | Editar o terminar de configurar                                                                                                                                                                            |
+| `/projects/:id/rules`                     | Revisiones de reglas, de la más reciente a la más antigua; «Evaluar» abre el diálogo de evaluación                                                                                                         |
+| `/projects/:id/rules/new`                 | Crear la revisión siguiente (`?base=N` parte de la revisión N): mapeo de columnas y reglas                                                                                                                 |
+| `/projects/:id/rules/:revision`           | Una revisión en lectura; «Usar como base» y «Evaluar con esta revisión»                                                                                                                                    |
+| `/projects/:id/evaluations`               | Historial de evaluaciones, de la más reciente a la más antigua                                                                                                                                             |
+| `/projects/:id/evaluations/:evaluationId` | Avance de una evaluación, conteos, informe filtrable (`?resultado=invalidas&pagina=2`), descarga de `errores.csv`, exportación confirmada de `productos.tsv` (`?exportacion=<id>`) y «Publicar en el feed» |
+| `/projects/:id/feed`                      | Feed del proyecto: URL para Merchant Center (se ve una sola vez), versión publicada e historial, y actualización diaria (fuente, política, horario, «Actualizar ahora»)                                    |
+| `/account`                                | Datos de la cuenta y cierre de sesión                                                                                                                                                                      |
 
 El historial `/projects/:id/evaluations` usa `GET /projects/:id/evaluations`, añadido a la API `claudeLearningAllPosibolIt` el 2026-11-04 ([plan 02 de la API](../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md)); necesita una API que ya incluya esa ruta.
 
@@ -74,10 +75,10 @@ app/
 ├── pages/          # Acceso, cuenta y proyectos
 ├── layouts/        # default (acceso) y workspace (lateral + panel)
 ├── components/     # FocusCover, WorkspacePage, formularios, filas y tablas
-├── composables/    # useAccess, useProjects, useProjectImports, useRulesets, useEvaluation, useEvaluationReport, useEvaluationExport
+├── composables/    # useAccess, useProjects, useProjectImports, useRulesets, useEvaluation, useEvaluationReport, useEvaluationExport, useProjectFeed, useFeedVersions, useFeedRefresh
 ├── plugins/        # access (SDK y sesión) y api (servicios con token)
 ├── middleware/     # Navegación coherente con el estado de acceso
-├── services/       # Cliente HTTP, proyectos, importaciones, reglas, evaluaciones, exportaciones, acceso y perfil
+├── services/       # Cliente HTTP, proyectos, importaciones, reglas, evaluaciones, exportaciones, feeds, acceso y perfil
 ├── types/          # Contratos de la API con comprobaciones de forma
 ├── utils/          # Rutas de acceso, formato y comprobaciones pequeñas
 └── assets/css/     # Tailwind + Nuxt UI y tokens Focus
