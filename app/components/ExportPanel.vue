@@ -119,13 +119,19 @@ async function download() {
         {{ productExport.acceptedExcludedCount.toLocaleString('es') }}
         excluidos.
       </p>
-      <UButton
-        icon="i-lucide-download"
-        :loading="isDownloading"
-        @click="download"
-      >
-        Descargar productos.tsv
-      </UButton>
+      <div class="flex flex-wrap items-center gap-2">
+        <UButton
+          icon="i-lucide-download"
+          :loading="isDownloading"
+          @click="download"
+        >
+          Descargar productos.tsv
+        </UButton>
+        <FeedPublishButton
+          :project-id="projectId"
+          :export-id="productExport.id"
+        />
+      </div>
     </div>
 
     <UAlert

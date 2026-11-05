@@ -101,6 +101,7 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
         :feed="feed"
         @changed="onDeliveryChanged"
       />
+      <FeedVersions :project-id="projectId" :feed-id="feed.id" />
     </div>
 
     <FeedUrlModal v-if="shownUrl" v-model:open="isUrlOpen" :url="shownUrl" />
