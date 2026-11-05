@@ -1,6 +1,7 @@
 # 05 — Historial de evaluaciones
 
 Fecha de creación: 2026-11-04
+Última actualización: 2026-11-05 (la ruta ya tiene commit en la API)
 Estado: Implementado, pendiente de verificación con sesión real
 Ámbito: incremento 5 del [plan 01 de reglas y evaluaciones](../../../docs/plans/feature/rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md)
 Relacionada con: [04 informe](04-informe-y-errores-csv.md), [plan 02 de la API](../../../../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md), [bitácora 05 de la API](../../../../claudeLearningAllPosibolIt/bitacora-construccion/feature/rulesets&evaluations/05-listar-evaluaciones.md)
@@ -8,7 +9,7 @@ Revisión de partida: `db4a674` (`v0.2.0`)
 
 ## Necesidad y punto de partida
 
-Solo se llegaba a una evaluación al lanzarla o por su URL. El usuario eligió añadir el listado en la API `claudeLearningAllPosibolIt`: `GET /projects/:projectId/evaluations` → `{ evaluations, page }`, de la más reciente a la más antigua y sin muestra. Esa ruta está implementada y probada en la API, pero **todavía sin commit allí** (ver la bitácora 05 de la API).
+Solo se llegaba a una evaluación al lanzarla o por su URL. El usuario eligió añadir el listado en la API `claudeLearningAllPosibolIt`: `GET /projects/:projectId/evaluations` → `{ evaluations, page }`, de la más reciente a la más antigua y sin muestra. Esa ruta está implementada y probada en la API, guardada en el commit `612b745` de la rama `feature/feeds-publications`, por decisión del usuario (ver la bitácora 05 de la API).
 
 ## Evidencia y decisiones
 
@@ -33,8 +34,8 @@ Solo se llegaba a una evaluación al lanzarla o por su URL. El usuario eligió a
 | `isEvaluationList` empaquetado con esbuild y ejecutado con Node | Acepta una lista con una evaluación en cola y otra terminada, y una lista vacía; rechaza una respuesta sin `page` |
 | Ruta de la API                                                  | Probada en la API con sus pruebas e2e (bitácora 05 de la API)                                                     |
 
-**No verificado:** la página con la API real y sesión. Requiere arrancar la API con su árbol actual (la ruta aún no tiene commit allí).
+**No verificado:** la página con la API real y sesión. Requiere la API desde la rama `feature/feeds-publications` (`612b745` o posterior).
 
 ## Consecuencias y continuidad
 
-El plan 01 de reglas y evaluaciones queda completo en la web. Pendiente: el commit de la ruta en la API, coordinado con las sesiones que trabajan allí.
+El plan 01 de reglas y evaluaciones queda completo en la web.
