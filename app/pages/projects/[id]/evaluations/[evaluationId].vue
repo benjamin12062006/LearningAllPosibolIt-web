@@ -148,6 +148,14 @@ const sourceSummary = computed(() => {
           :counts="evaluation.counts"
           class="mt-10"
         />
+
+        <ExportPanel
+          :project-id="projectId"
+          :evaluation="evaluation"
+          :counts="evaluation.counts"
+          class="mt-10"
+          @reload="refresh()"
+        />
       </template>
     </template>
   </WorkspacePage>

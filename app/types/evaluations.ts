@@ -25,6 +25,8 @@ export interface Evaluation {
   rulesetRevision: number;
   status: EvaluationStatus;
   counts: EvaluationCounts | null;
+  /** Resume el resultado fila a fila; la exportación lo envía para aprobarlo. */
+  resultChecksum: string | null;
   createdAt: string;
   finishedAt: string | null;
   error: PublicError | null;
@@ -140,6 +142,7 @@ function isEvaluation(value: unknown): value is Evaluation {
     Number.isInteger(value.rulesetRevision) &&
     isEvaluationStatus(value.status) &&
     (value.counts === null || isCounts(value.counts)) &&
+    isNullableString(value.resultChecksum) &&
     isDateString(value.createdAt) &&
     isNullableString(value.finishedAt) &&
     (value.error === null || isPublicError(value.error))
