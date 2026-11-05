@@ -19,6 +19,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       icon: 'i-lucide-clipboard-check',
       to: `${base}/evaluations`,
     },
+    { label: 'Feed', icon: 'i-lucide-rss', to: `${base}/feed` },
   ];
 });
 </script>
