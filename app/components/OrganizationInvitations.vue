@@ -137,8 +137,8 @@ function notifyError(title: string, failure: unknown) {
       <UButton type="submit" icon="i-lucide-send">Crear invitación</UButton>
     </UForm>
     <p class="text-xs text-muted">
-      La persona debe entrar con ese mismo correo para aceptar. Si todavía no ha
-      iniciado sesión, que entre primero y después abra el enlace.
+      La persona debe entrar con ese mismo correo para aceptar. Si no había
+      iniciado sesión, al entrar vuelve sola a la invitación.
     </p>
 
     <div

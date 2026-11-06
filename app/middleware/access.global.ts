@@ -1,4 +1,5 @@
-import { accessRoute, isGuardedPath } from '../utils/access-route';
+import { accessDestination, isCurrentRoute } from '../utils/access-destination';
+import { isGuardedPath } from '../utils/access-route';
 
 export default defineNuxtRouteMiddleware(async (to) => {
   // Flujos de acceso antiguos vuelven a /: conservar sus parámetros de callback.
@@ -13,8 +14,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const { state, actions } = useAccess();
   await actions.start();
-  const destination = accessRoute(state.value, to.path);
-  if (to.path !== destination) {
+  const destination = accessDestination(state.value, to);
+  if (!isCurrentRoute(destination, to)) {
     return navigateTo(destination, { replace: true });
   }
 });

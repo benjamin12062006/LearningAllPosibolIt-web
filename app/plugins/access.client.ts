@@ -7,7 +7,7 @@ import {
   type SessionService,
 } from '../types/access';
 import { configurationProblem } from '../utils/configuration';
-import { accessRoute } from '../utils/access-route';
+import { accessDestination, isCurrentRoute } from '../utils/access-destination';
 
 export default defineNuxtPlugin({
   name: 'access',
@@ -156,9 +156,11 @@ export default defineNuxtPlugin({
         state,
         (value) => {
           if (value.status === 'checking') return;
-          const currentPath = router.currentRoute.value.path;
-          const path = accessRoute(value, currentPath);
-          if (currentPath !== path) void router.replace(path);
+          const current = router.currentRoute.value;
+          const destination = accessDestination(value, current);
+          if (!isCurrentRoute(destination, current)) {
+            void router.replace(destination);
+          }
         },
         { immediate: true },
       );
