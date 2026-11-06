@@ -1,11 +1,18 @@
 <script setup lang="ts">
 /**
- * Muestra la URL del feed la única vez que la API la entrega (al crear el feed
- * o al rotar el token). Después solo se puede pedir otra.
+ * Muestra un enlace secreto la única vez que la API lo entrega (URL del feed,
+ * invitación). Después solo se puede pedir otro: por eso no se cierra al hacer
+ * clic fuera y ofrece copiarlo.
  */
 const open = defineModel<boolean>('open', { required: true });
 
-const props = defineProps<{ url: string }>();
+const props = defineProps<{
+  url: string;
+  title: string;
+  /** Quién puede usar el enlace y qué hacer si se pierde. */
+  warningTitle: string;
+  warningDescription: string;
+}>();
 
 const toast = useToast();
 const copied = ref(false);
@@ -30,7 +37,7 @@ async function copyUrl() {
   } catch {
     toast.add({
       title: 'No se pudo copiar',
-      description: 'Selecciona la URL y cópiala a mano.',
+      description: 'Selecciona el enlace y cópialo a mano.',
       color: 'warning',
       icon: 'i-lucide-clipboard-x',
     });
@@ -41,8 +48,8 @@ async function copyUrl() {
 <template>
   <UModal
     v-model:open="open"
-    title="URL del feed para Merchant Center"
-    description="Guárdala ahora: por seguridad no se volverá a mostrar."
+    :title="title"
+    description="Guárdalo ahora: por seguridad no se volverá a mostrar."
     :dismissible="false"
   >
     <template #body>
@@ -51,15 +58,15 @@ async function copyUrl() {
           :model-value="url"
           readonly
           class="w-full font-mono"
-          aria-label="URL del feed"
+          :aria-label="title"
           @focus="selectAll"
         />
         <UAlert
           color="warning"
           variant="subtle"
           icon="i-lucide-key-round"
-          title="Quien tenga esta URL puede descargar el catálogo publicado."
-          description="Si la pierdes o se filtra, pide una nueva: la anterior dejará de funcionar."
+          :title="warningTitle"
+          :description="warningDescription"
         />
       </div>
     </template>
@@ -72,9 +79,9 @@ async function copyUrl() {
           variant="soft"
           @click="copyUrl"
         >
-          {{ copied ? 'Copiada' : 'Copiar URL' }}
+          {{ copied ? 'Copiado' : 'Copiar enlace' }}
         </UButton>
-        <UButton @click="open = false">Ya la guardé</UButton>
+        <UButton @click="open = false">Ya lo guardé</UButton>
       </div>
     </template>
   </UModal>

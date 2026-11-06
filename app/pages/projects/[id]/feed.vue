@@ -110,6 +110,13 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
       <FeedVersions :project-id="projectId" :feed-id="feed.id" />
     </div>
 
-    <FeedUrlModal v-if="shownUrl" v-model:open="isUrlOpen" :url="shownUrl" />
+    <OneTimeLinkModal
+      v-if="shownUrl"
+      v-model:open="isUrlOpen"
+      :url="shownUrl"
+      title="URL del feed para Merchant Center"
+      warning-title="Quien tenga esta URL puede descargar el catálogo publicado."
+      warning-description="Si la pierdes o se filtra, pide una nueva: la anterior dejará de funcionar."
+    />
   </WorkspacePage>
 </template>

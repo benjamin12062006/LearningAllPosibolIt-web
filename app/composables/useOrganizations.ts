@@ -53,3 +53,38 @@ export function useOrganizationProjects(
 
   return { projects: computed(() => data.value ?? []), status, error };
 }
+
+/** Miembros de la organización con su rol. */
+export function useOrganizationMembers(
+  organizationId: MaybeRefOrGetter<string>,
+) {
+  const { $organizations } = useNuxtApp();
+
+  const { data, status, error, refresh } = useAsyncData(
+    () => `organization-members:${toValue(organizationId)}`,
+    () => $organizations.members(toValue(organizationId)),
+    { server: false },
+  );
+
+  return { members: computed(() => data.value ?? []), status, error, refresh };
+}
+
+/** Invitaciones pendientes (sin token: solo llega una vez, al invitar). */
+export function useOrganizationInvitations(
+  organizationId: MaybeRefOrGetter<string>,
+) {
+  const { $organizations } = useNuxtApp();
+
+  const { data, status, error, refresh } = useAsyncData(
+    () => `organization-invitations:${toValue(organizationId)}`,
+    () => $organizations.invitations(toValue(organizationId)),
+    { server: false },
+  );
+
+  return {
+    invitations: computed(() => data.value ?? []),
+    status,
+    error,
+    refresh,
+  };
+}

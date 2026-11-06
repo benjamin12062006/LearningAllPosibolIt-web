@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ApiFailure } from '../../services/api-client';
-import { ROLE_LABELS, canOwn, isArchived } from '../../types/organizations';
+import {
+  ROLE_LABELS,
+  canManageMembers,
+  canOwn,
+  isArchived,
+} from '../../types/organizations';
 
 definePageMeta({ layout: 'workspace' });
 
@@ -31,6 +36,18 @@ const canArchive = computed(
     canOwn(access.value) &&
     organization.value?.kind === 'team',
 );
+
+/** Una organización archivada se lee, pero no cambia miembros ni invitaciones. */
+const canManage = computed(
+  () =>
+    access.value !== null && canManageMembers(access.value) && !archived.value,
+);
+
+async function onLeft() {
+  await refreshOrganizations();
+  toast.add({ title: 'Saliste de la organización', icon: 'i-lucide-log-out' });
+  await navigateTo('/organizations');
+}
 
 const subtitle = computed(() => {
   if (!organization.value || !access.value) return '';
@@ -107,6 +124,19 @@ async function setArchived(next: boolean) {
       />
 
       <OrganizationProjects :organization-id="organization.id" />
+
+      <OrganizationMembers
+        :organization-id="organization.id"
+        :can-manage="canManage"
+        :is-personal="organization.kind === 'personal'"
+        @access-changed="refresh()"
+        @left="onLeft"
+      />
+
+      <OrganizationInvitations
+        v-if="canManage"
+        :organization-id="organization.id"
+      />
 
       <section
         v-if="canArchive && !archived"
