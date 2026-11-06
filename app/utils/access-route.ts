@@ -2,7 +2,12 @@ import type { AccessState } from '../types/access';
 
 const ACCESS_PATHS = ['/', '/auth', '/session'];
 
-const WORKSPACE_PATHS = ['/projects', '/account'];
+const WORKSPACE_PATHS = [
+  '/projects',
+  '/organizations',
+  '/invitations',
+  '/account',
+];
 
 export const HOME_PATH = '/projects';
 

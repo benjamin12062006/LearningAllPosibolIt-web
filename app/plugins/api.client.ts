@@ -2,6 +2,7 @@ import { createApiClient } from '../services/api-client';
 import { createEvaluationsService } from '../services/evaluations';
 import { createExportsService } from '../services/exports';
 import { createFeedsService } from '../services/feeds';
+import { createOrganizationsService } from '../services/organizations';
 import { createImportsService } from '../services/imports';
 import { createProjectsService } from '../services/projects';
 import { createRulesetsService } from '../services/rulesets';
@@ -21,6 +22,7 @@ export default defineNuxtPlugin({
         evaluations: createEvaluationsService(api),
         exports: createExportsService(api),
         feeds: createFeedsService(api),
+        organizations: createOrganizationsService(api),
       },
     };
   },

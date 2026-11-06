@@ -27,6 +27,11 @@ const workspaceItems = computed<NavigationMenuItem[]>(() => [
     badge: String(projects.value.length),
   },
   { label: 'Nuevo proyecto', icon: 'i-lucide-plus', to: '/projects/new' },
+  {
+    label: 'Organizaciones',
+    icon: 'i-lucide-building-2',
+    to: '/organizations',
+  },
 ]);
 
 const accountItems = computed<DropdownMenuItem[][]>(() => [
