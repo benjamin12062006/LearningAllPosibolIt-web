@@ -2,7 +2,7 @@
 
 Fecha de creación: 2026-11-03
 Estado: Plan
-Ámbito: `KSuT/claudeLearningAllPosibolIt-web`
+Ámbito: `KSuT/LearningAllPosibolIt-web`
 Relacionada con: [curso](../../fonts/ui/01-curso-nuxt-full-stack-nuxt-ui.md), [Nuxt UI y antecedentes](../../fonts/ui/02-documentacion-nuxt-ui-y-antecedentes.md), [contrato API](../../fonts/feature/projects&catalog-import/01-contrato-api-proyectos-e-importaciones.md), [plan de la migración original](../01-migracion-flutter-a-nuxt.md)
 Revisión de referencia: `57752dc` (copia exacta de `estadistica-forms-web` en `60e3f59`)
 
@@ -10,7 +10,7 @@ Revisión de referencia: `57752dc` (copia exacta de `estadistica-forms-web` en `
 
 1. La web copiada usa Nuxt UI como única biblioteca de componentes, con la estética de la captura Focus en oscuro y una variante clara.
 2. Tras iniciar sesión se entra a un espacio de trabajo con lateral (proyectos) y contenido.
-3. Páginas reales contra [claudeLearningAllPosibolIt](../../../../claudeLearningAllPosibolIt): listar, crear, ver, editar y borrar proyectos; subir un CSV, seguir su procesamiento y ver o borrar importaciones.
+3. Páginas reales contra [LearningAllPosibolIt](../../../../LearningAllPosibolIt): listar, crear, ver, editar y borrar proyectos; subir un CSV, seguir su procesamiento y ver o borrar importaciones.
 
 Se dará por completo cuando `format:check`, `lint`, `typecheck` y `build` pasen y las páginas públicas se vean en el navegador. El recorrido con sesión real lo comprueba el usuario (Descope no se automatiza).
 

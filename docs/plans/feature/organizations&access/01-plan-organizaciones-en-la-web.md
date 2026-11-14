@@ -2,7 +2,7 @@
 
 Fecha de creación: 2026-11-05
 Estado: Plan
-Ámbito: `KSuT/claudeLearningAllPosibolIt-web`
+Ámbito: `KSuT/LearningAllPosibolIt-web`
 Relacionada con: [fuentes](../../../fonts/feature/organizations&access/01-contrato-api-organizaciones.md), [plan del feed](../feeds&publications/01-plan-feed-del-proyecto.md)
 Revisión de referencia: web `085488a` (`v0.4.0`); API `8a32dfb` (rama `feature/organizations-access`) y el mismo código en el árbol compartido.
 

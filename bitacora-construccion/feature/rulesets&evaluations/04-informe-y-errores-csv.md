@@ -8,7 +8,7 @@ Revisión de partida: `9b4d58a`
 
 ## Necesidad y punto de partida
 
-La página de la evaluación mostraba conteos y las 20 primeras filas. Faltaba ver todas las filas, filtrarlas por resultado, leer cada problema con su corrección y descargar `errores.csv`. Todo contra la API [claudeLearningAllPosibolIt](../../../../claudeLearningAllPosibolIt) (`GET …/rows` y `GET …/errors.csv`, B7).
+La página de la evaluación mostraba conteos y las 20 primeras filas. Faltaba ver todas las filas, filtrarlas por resultado, leer cada problema con su corrección y descargar `errores.csv`. Todo contra la API [LearningAllPosibolIt](../../../../LearningAllPosibolIt) (`GET …/rows` y `GET …/errors.csv`, B7).
 
 ## Evidencia y decisiones
 

@@ -2,7 +2,7 @@
 
 Fecha de creación: 2026-11-03
 Tipo de fuente: código propio (backend)
-Origen: [claudeLearningAllPosibolIt](../../../../../claudeLearningAllPosibolIt), `main` en `f6b4bf9` con cambios locales sin commit en otros módulos (rulesets, evaluaciones); los archivos citados aquí se leyeron del árbol actual.
+Origen: [LearningAllPosibolIt](../../../../../LearningAllPosibolIt), `main` en `f6b4bf9` con cambios locales sin commit en otros módulos (rulesets, evaluaciones); los archivos citados aquí se leyeron del árbol actual.
 Fecha de consulta: 2026-11-03
 Relacionada con: [plan ui 01](../../../plans/ui/01-plan-nuxt-ui-focus-proyectos-e-importaciones.md)
 

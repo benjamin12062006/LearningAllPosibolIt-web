@@ -2,7 +2,7 @@
 
 Fecha de creación: 2026-11-05
 Estado: Plan
-Ámbito: `KSuT/claudeLearningAllPosibolIt-web`
+Ámbito: `KSuT/LearningAllPosibolIt-web`
 Relacionada con: [fuentes](../../../fonts/feature/feeds&publications/01-contrato-api-feeds-y-actualizaciones.md), [revisar y exportar](../reviews&exports/01-plan-revisar-y-exportar.md), [fuentes del curso](../../../fonts/feature/rulesets&evaluations/02-curso-paginacion-maestro-detalle-y-modales.md), [curso (formularios)](../../../fonts/ui/01-curso-nuxt-full-stack-nuxt-ui.md)
 Revisión de referencia: web `30f7814` (`v0.3.0`); API `612b745`.
 

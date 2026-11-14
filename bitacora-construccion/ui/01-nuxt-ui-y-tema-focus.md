@@ -8,7 +8,7 @@ Revisión de partida: `57752dc` (copia exacta de `estadistica-forms-web` en `60e
 
 ## Necesidad y punto de partida
 
-El usuario pidió clonar `estadistica-forms-web` como se hizo con la API (`claudeLearningAllPosibolIt`), con Git propio, y rehacer su diseño con Nuxt UI siguiendo la captura Focus. La copia usaba Tailwind con tokens propios (verde, Roboto) y componentes dibujados a mano.
+El usuario pidió clonar `estadistica-forms-web` como se hizo con la API (`LearningAllPosibolIt`), con Git propio, y rehacer su diseño con Nuxt UI siguiendo la captura Focus. La copia usaba Tailwind con tokens propios (verde, Roboto) y componentes dibujados a mano.
 
 ## Evidencia y decisiones
 

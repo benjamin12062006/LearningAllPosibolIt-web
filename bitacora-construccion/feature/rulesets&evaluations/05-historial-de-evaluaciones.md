@@ -4,12 +4,12 @@ Fecha de creación: 2026-11-04
 Última actualización: 2026-11-05 (la ruta ya tiene commit en la API)
 Estado: Implementado, pendiente de verificación con sesión real
 Ámbito: incremento 5 del [plan 01 de reglas y evaluaciones](../../../docs/plans/feature/rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md)
-Relacionada con: [04 informe](04-informe-y-errores-csv.md), [plan 02 de la API](../../../../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md), [bitácora 05 de la API](../../../../claudeLearningAllPosibolIt/bitacora-construccion/feature/rulesets&evaluations/05-listar-evaluaciones.md)
+Relacionada con: [04 informe](04-informe-y-errores-csv.md), [plan 02 de la API](../../../../LearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md), [bitácora 05 de la API](../../../../LearningAllPosibolIt/bitacora-construccion/feature/rulesets&evaluations/05-listar-evaluaciones.md)
 Revisión de partida: `db4a674` (`v0.2.0`)
 
 ## Necesidad y punto de partida
 
-Solo se llegaba a una evaluación al lanzarla o por su URL. El usuario eligió añadir el listado en la API `claudeLearningAllPosibolIt`: `GET /projects/:projectId/evaluations` → `{ evaluations, page }`, de la más reciente a la más antigua y sin muestra. Esa ruta está implementada y probada en la API, guardada en el commit `612b745` de la rama `feature/feeds-publications`, por decisión del usuario (ver la bitácora 05 de la API).
+Solo se llegaba a una evaluación al lanzarla o por su URL. El usuario eligió añadir el listado en la API `LearningAllPosibolIt`: `GET /projects/:projectId/evaluations` → `{ evaluations, page }`, de la más reciente a la más antigua y sin muestra. Esa ruta está implementada y probada en la API, guardada en el commit `612b745` de la rama `feature/feeds-publications`, por decisión del usuario (ver la bitácora 05 de la API).
 
 ## Evidencia y decisiones
 

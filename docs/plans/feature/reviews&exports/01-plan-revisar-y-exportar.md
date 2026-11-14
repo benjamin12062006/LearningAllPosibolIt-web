@@ -2,7 +2,7 @@
 
 Fecha de creación: 2026-11-05
 Estado: Plan
-Ámbito: `KSuT/claudeLearningAllPosibolIt-web`
+Ámbito: `KSuT/LearningAllPosibolIt-web`
 Relacionada con: [fuentes](../../../fonts/feature/reviews&exports/01-contrato-api-y-orden-del-producto.md), [plan de reglas y evaluaciones](../rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md), [informe y errores.csv](../../../../bitacora-construccion/feature/rulesets&evaluations/04-informe-y-errores-csv.md)
 Revisión de referencia: web `9876ad1`; API `612b745`.
 

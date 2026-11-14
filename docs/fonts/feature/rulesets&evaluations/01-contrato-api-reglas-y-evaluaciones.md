@@ -2,9 +2,9 @@
 
 Fecha de creación: 2026-11-03
 Tipo de fuente: código propio (backend) y su plan
-Origen: [claudeLearningAllPosibolIt](../../../../../claudeLearningAllPosibolIt), `main` en `f6b4bf9` (último commit que toca `src/rulesets` y `src/evaluations`, 2026-11-02). El árbol tiene cambios sin commit en otros módulos y en `evaluations.service.ts`; se leyó el árbol actual.
+Origen: [LearningAllPosibolIt](../../../../../LearningAllPosibolIt), `main` en `f6b4bf9` (último commit que toca `src/rulesets` y `src/evaluations`, 2026-11-02). El árbol tiene cambios sin commit en otros módulos y en `evaluations.service.ts`; se leyó el árbol actual.
 Fecha de consulta: 2026-11-03
-Relacionada con: [plan 01 de reglas y evaluaciones](../../../plans/feature/rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md), [contrato de proyectos e importaciones](../projects&catalog-import/01-contrato-api-proyectos-e-importaciones.md), [plan de la API](../../../../../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/01-plan-rulesets-y-evaluations.md)
+Relacionada con: [plan 01 de reglas y evaluaciones](../../../plans/feature/rulesets&evaluations/01-plan-paginas-reglas-y-evaluaciones.md), [contrato de proyectos e importaciones](../projects&catalog-import/01-contrato-api-proyectos-e-importaciones.md), [plan de la API](../../../../../LearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/01-plan-rulesets-y-evaluations.md)
 
 ## Necesidad de consulta
 

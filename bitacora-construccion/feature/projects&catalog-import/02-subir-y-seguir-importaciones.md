@@ -33,7 +33,7 @@ Dentro de cada proyecto: subir el CSV del catálogo, ver cómo avanza y listar o
 | ---------------------------------------------------------------- | --------------------------- |
 | `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm build` | Sin errores; build completo |
 
-**No verificado:** subida real. Recorrido para el usuario con la API y sesión: subir el CSV de ejemplo de `claudeLearningAllPosibolIt/requests/catalog-import.http`, ver «Importando…» y después «Lista» con sus filas; subir otro mientras el primero sigue activo (la API responde `409 IMPORT_ALREADY_ACTIVE` y debe verse su mensaje); borrar una importación.
+**No verificado:** subida real. Recorrido para el usuario con la API y sesión: subir el CSV de ejemplo de `LearningAllPosibolIt/requests/catalog-import.http`, ver «Importando…» y después «Lista» con sus filas; subir otro mientras el primero sigue activo (la API responde `409 IMPORT_ALREADY_ACTIVE` y debe verse su mensaje); borrar una importación.
 
 ## Consecuencias y continuidad
 

@@ -1,10 +1,10 @@
-# claudeLearningAllPosibolIt-web
+# LearningAllPosibolIt-web
 
 Fecha de creación: 2026-10-19 (heredada de `estadistica-forms-web`)
 Última actualización: 2026-11-05
 Relacionada con: [plan ui 01](docs/plans/ui/01-plan-nuxt-ui-focus-proyectos-e-importaciones.md), [bitácora ui 01](bitacora-construccion/ui/01-nuxt-ui-y-tema-focus.md), [plan de la migración original](docs/plans/01-migracion-flutter-a-nuxt.md).
 
-Web de aprendizaje para la API [claudeLearningAllPosibolIt](../claudeLearningAllPosibolIt). Es una copia de [estadistica-forms-web](../estadistica-forms-web) (`main` en `60e3f59`) con Git propio, igual que la API es una copia de `estadistica-forms-api`. El primer commit (`57752dc`) es la copia exacta; lo demás se construye aquí.
+Web de aprendizaje para la API [LearningAllPosibolIt](../LearningAllPosibolIt). Es una copia de [estadistica-forms-web](../estadistica-forms-web) (`main` en `60e3f59`) con Git propio, igual que la API es una copia de `estadistica-forms-api`. El primer commit (`57752dc`) es la copia exacta; lo demás se construye aquí.
 
 Nuxt 4.6.2, Vue 3.5.44, TypeScript 6.0.3, **Nuxt UI 4.12.0** (Tailwind CSS 4.3.3 incluido), Zod 4.6.7, iconos Lucide locales, Descope Vue SDK 3.1.19 y pnpm 12.5.1. TypeScript 6 se fija porque vue-tsc y ESLint todavía no admiten TypeScript 7.
 
@@ -16,8 +16,8 @@ Nuxt UI es la única biblioteca de componentes. La estética sigue la [captura F
 
 ```text
 KSuT/
-├── claudeLearningAllPosibolIt/       # API Nest (copia de estadistica-forms-api)
-├── claudeLearningAllPosibolIt-web/   # Esta app Nuxt
+├── LearningAllPosibolIt/       # API Nest (copia de estadistica-forms-api)
+├── LearningAllPosibolIt-web/   # Esta app Nuxt
 ├── estadistica-forms-api/            # Originales, sin cambios
 └── estadistica-forms-web/
 ```
@@ -25,7 +25,7 @@ KSuT/
 ## Ejecutar
 
 ```sh
-cd /Users/benji/Documents/KSuT/claudeLearningAllPosibolIt-web
+cd /Users/benji/Documents/KSuT/LearningAllPosibolIt-web
 pnpm install
 pnpm dev
 ```
@@ -43,7 +43,7 @@ Completar `NUXT_PUBLIC_DESCOPE_PROJECT_ID`. Nunca introducir Management Key ni t
 La API debe estar activa en el puerto 8080 (ya admite el origen `http://localhost:3000`):
 
 ```sh
-cd /Users/benji/Documents/KSuT/claudeLearningAllPosibolIt
+cd /Users/benji/Documents/KSuT/LearningAllPosibolIt
 pnpm start:dev
 ```
 
@@ -69,7 +69,7 @@ La API original y la copia usan el mismo puerto: arrancar solo una.
 | `/invitations/accept#<token>`             | Aceptar una invitación (hay que entrar con el correo invitado)                                                                                                                                             |
 | `/account`                                | Datos de la cuenta y cierre de sesión                                                                                                                                                                      |
 
-El historial `/projects/:id/evaluations` usa `GET /projects/:id/evaluations`, añadido a la API `claudeLearningAllPosibolIt` el 2026-11-04 ([plan 02 de la API](../claudeLearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md)); necesita una API que ya incluya esa ruta.
+El historial `/projects/:id/evaluations` usa `GET /projects/:id/evaluations`, añadido a la API `LearningAllPosibolIt` el 2026-11-04 ([plan 02 de la API](../LearningAllPosibolIt/docs/plans/feature/rulesets&evaluations/02-plan-listar-evaluaciones.md)); necesita una API que ya incluya esa ruta.
 
 ## Organización
 
