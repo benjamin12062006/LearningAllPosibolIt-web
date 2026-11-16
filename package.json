@@ -14,11 +14,17 @@
     "typecheck": "nuxt typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "typecheck:test": "vue-tsc --noEmit -p test/unit/tsconfig.json",
+    "check:calc-engine": "node scripts/check-calc-engine.mjs"
   },
   "dependencies": {
+    "@ark-ui/vue": "5.40.0",
     "@descope/vue-sdk": "3.1.19",
     "@nuxt/ui": "4.12.0",
+    "@tanstack/vue-virtual": "3.13.51",
+    "marked": "17.0.6",
     "nuxt": "4.6.2",
     "vue": "3.5.44",
     "vue-router": "5.4.0",
@@ -27,10 +33,14 @@
   "devDependencies": {
     "@iconify-json/lucide": "1.2.150",
     "@nuxt/eslint": "1.17.0",
+    "@nuxt/test-utils": "4.4.0",
+    "@vue/test-utils": "2.5.1",
     "eslint": "10.13.0",
+    "happy-dom": "21.0.4",
     "prettier": "3.9.10",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
+    "vitest": "5.1.0",
     "vue-tsc": "3.3.13"
   },
   "devEngines": {

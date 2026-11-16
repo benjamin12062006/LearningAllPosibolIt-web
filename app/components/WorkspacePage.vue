@@ -12,6 +12,13 @@ withDefaults(
 <template>
   <UDashboardPanel :id="id" :ui="{ body: 'p-0 sm:p-0 gap-0 sm:gap-0' }">
     <template #body>
+      <div
+        class="pointer-events-none sticky top-0 z-(--layer-bar) flex h-0 shrink-0 justify-end"
+      >
+        <div class="pointer-events-auto me-3 mt-3 self-start">
+          <AssistantProjectLauncher />
+        </div>
+      </div>
       <FocusCover :compact="compactCover">
         <template #leading>
           <UDashboardSidebarToggle
@@ -21,7 +28,9 @@ withDefaults(
           />
         </template>
         <template #actions>
-          <slot name="actions" />
+          <div v-if="$slots.actions" class="me-12 flex items-center gap-1">
+            <slot name="actions" />
+          </div>
         </template>
       </FocusCover>
 
@@ -30,7 +39,9 @@ withDefaults(
       >
         <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div class="min-w-0">
-            <h1 class="focus-title break-words">{{ title }}</h1>
+            <h1 data-assistant-route-anchor class="focus-title break-words">
+              {{ title }}
+            </h1>
             <slot name="subtitle" />
           </div>
           <slot name="title-actions" />

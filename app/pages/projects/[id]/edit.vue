@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useProject } from '../../../features/projects/composables/useProjects';
 definePageMeta({ layout: 'workspace' });
 
 const route = useRoute();
@@ -8,7 +9,11 @@ const { project, status, error, refresh } = useProject(() =>
 </script>
 
 <template>
-  <WorkspacePage id="editar-proyecto" title="Editar proyecto" compact-cover>
+  <WorkspacePage
+    id="editar-proyecto"
+    :title="$t('Editar proyecto')"
+    compact-cover
+  >
     <div v-if="status === 'pending' && !project" class="space-y-3">
       <USkeleton v-for="row in 4" :key="row" class="h-10 w-full" />
     </div>

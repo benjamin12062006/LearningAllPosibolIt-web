@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import {
+  useProjects,
+  useProject,
+} from '../../../features/projects/composables/useProjects';
 import { ApiFailure } from '../../../services/api-client';
-import { CHANNEL_PROFILE_LABELS } from '../../../types/projects';
+import { CHANNEL_PROFILE_LABELS } from '../../../features/projects/types/projects';
+
+const { t, formatDate } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -16,7 +22,7 @@ const toast = useToast();
 const isDeleteOpen = ref(false);
 const isDeleting = ref(false);
 
-const title = computed(() => project.value?.name ?? 'Proyecto');
+const title = computed(() => project.value?.name ?? t('Proyecto'));
 
 const createdAt = computed(() =>
   project.value ? formatDate(project.value.createdAt) : '',
@@ -24,7 +30,7 @@ const createdAt = computed(() =>
 
 const channelLabel = computed(() => {
   const channel = project.value?.channelProfile;
-  return channel ? CHANNEL_PROFILE_LABELS[channel] : 'Sin elegir';
+  return channel ? t(CHANNEL_PROFILE_LABELS[channel]) : t('Sin elegir');
 });
 
 async function deleteProject() {
@@ -40,7 +46,7 @@ async function deleteProject() {
     await navigateTo('/projects');
   } catch (failure) {
     toast.add({
-      title: 'No se eliminó el proyecto',
+      title: t('No se eliminó el proyecto'),
       description: messageOf(failure),
       color: 'error',
       icon: 'i-lucide-circle-alert',
@@ -53,7 +59,7 @@ async function deleteProject() {
 
 function messageOf(failure: unknown) {
   if (failure instanceof ApiFailure) return failure.message;
-  return 'Inténtalo de nuevo.';
+  return t('Inténtalo de nuevo.');
 }
 </script>
 
@@ -64,7 +70,7 @@ function messageOf(failure: unknown) {
         v-if="project"
         :to="`/projects/${project.id}/edit`"
         icon="i-lucide-pencil"
-        aria-label="Editar proyecto"
+        :aria-label="$t('Editar proyecto')"
         color="neutral"
         variant="ghost"
         class="text-white hover:bg-white/15"
@@ -96,26 +102,30 @@ function messageOf(failure: unknown) {
         color="warning"
         variant="subtle"
         icon="i-lucide-settings-2"
-        title="Falta configurar este proyecto"
-        description="Elige país, moneda y canal para poder revisar y publicar su catálogo."
+        :title="$t('Falta configurar este proyecto')"
+        :description="
+          $t(
+            'Elige país, moneda y canal para poder revisar y publicar su catálogo.',
+          )
+        "
         :actions="[{ label: 'Configurar', to: `/projects/${project.id}/edit` }]"
       />
 
       <dl class="grid gap-x-8 sm:grid-cols-2">
         <div class="focus-row justify-between">
-          <dt class="text-sm text-muted">Canal</dt>
+          <dt class="text-sm text-muted">{{ $t('Canal') }}</dt>
           <dd class="text-sm">{{ channelLabel }}</dd>
         </div>
         <div class="focus-row justify-between">
-          <dt class="text-sm text-muted">País</dt>
-          <dd class="text-sm">{{ project.country ?? 'Sin elegir' }}</dd>
+          <dt class="text-sm text-muted">{{ $t('País') }}</dt>
+          <dd class="text-sm">{{ project.country ?? $t('Sin elegir') }}</dd>
         </div>
         <div class="focus-row justify-between">
-          <dt class="text-sm text-muted">Moneda</dt>
-          <dd class="text-sm">{{ project.currency ?? 'Sin elegir' }}</dd>
+          <dt class="text-sm text-muted">{{ $t('Moneda') }}</dt>
+          <dd class="text-sm">{{ project.currency ?? $t('Sin elegir') }}</dd>
         </div>
         <div class="focus-row justify-between">
-          <dt class="text-sm text-muted">Creado</dt>
+          <dt class="text-sm text-muted">{{ $t('Creado') }}</dt>
           <dd class="text-sm">
             <time :datetime="project.createdAt">{{ createdAt }}</time>
           </dd>
@@ -125,14 +135,22 @@ function messageOf(failure: unknown) {
       <ProjectImports :project-id="project.id" class="mt-10" />
 
       <section class="mt-12 border-t border-default pt-6">
-        <h2 class="text-sm font-medium text-highlighted">Eliminar proyecto</h2>
+        <h2 class="text-sm font-medium text-highlighted">
+          {{ $t('Eliminar proyecto') }}
+        </h2>
         <p class="mt-1 text-sm text-muted">
-          También se borran sus importaciones y archivos. No se puede deshacer.
+          {{
+            $t(
+              'También se borran sus importaciones y archivos. No se puede deshacer.',
+            )
+          }}
         </p>
         <UModal
           v-model:open="isDeleteOpen"
-          title="¿Eliminar este proyecto?"
-          :description="`«${project.name}» y todas sus importaciones se borrarán.`"
+          :title="$t('¿Eliminar este proyecto?')"
+          :description="
+            $t('«{0}» y todas sus importaciones se borrarán.', [project.name])
+          "
         >
           <UButton
             class="mt-4"
@@ -140,7 +158,7 @@ function messageOf(failure: unknown) {
             variant="soft"
             icon="i-lucide-trash-2"
           >
-            Eliminar proyecto
+            {{ $t('Eliminar proyecto') }}
           </UButton>
 
           <template #footer>
@@ -150,7 +168,7 @@ function messageOf(failure: unknown) {
                 variant="ghost"
                 @click="isDeleteOpen = false"
               >
-                Cancelar
+                {{ $t('Cancelar') }}
               </UButton>
               <UButton
                 color="error"
@@ -158,7 +176,7 @@ function messageOf(failure: unknown) {
                 :loading="isDeleting"
                 @click="deleteProject"
               >
-                Eliminar
+                {{ $t('Eliminar') }}
               </UButton>
             </div>
           </template>

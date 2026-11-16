@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useProject } from '../../../../features/projects/composables/useProjects';
+import { useRulesets } from '../../../../features/rulesets/composables/useRulesets';
 definePageMeta({ layout: 'workspace' });
 
 const route = useRoute();
@@ -15,7 +17,7 @@ const isFirstLoad = computed(
 </script>
 
 <template>
-  <WorkspacePage id="reglas" title="Reglas">
+  <WorkspacePage id="reglas" :title="$t('Reglas')">
     <template #title-actions>
       <div class="flex flex-wrap gap-2">
         <UButton
@@ -25,10 +27,10 @@ const isFirstLoad = computed(
           variant="soft"
           @click="isEvaluateOpen = true"
         >
-          Evaluar
+          {{ $t('Evaluar') }}
         </UButton>
         <UButton :to="`/projects/${projectId}/rules/new`" icon="i-lucide-plus">
-          Nueva revisión
+          {{ $t('Nueva revisión') }}
         </UButton>
       </div>
       <EvaluateDialog v-model:open="isEvaluateOpen" :project-id="projectId" />
@@ -36,8 +38,12 @@ const isFirstLoad = computed(
 
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
-        {{ project?.name ?? 'Proyecto' }} · cada revisión guarda el mapeo y las
-        reglas sin cambiarlas después.
+        {{ project?.name ?? $t('Proyecto') }}
+        {{
+          $t(
+            '· cada revisión guarda el mapeo y las reglas sin cambiarlas después.',
+          )
+        }}
       </p>
     </template>
 
@@ -59,8 +65,12 @@ const isFirstLoad = computed(
     <UEmpty
       v-else-if="rulesets.length === 0"
       icon="i-lucide-list-checks"
-      title="Todavía no hay reglas"
-      description="Una revisión dice qué columna del CSV corresponde a cada dato de Google y cómo limpiarlo."
+      :title="$t('Todavía no hay reglas')"
+      :description="
+        $t(
+          'Una revisión dice qué columna del CSV corresponde a cada dato de Google y cómo limpiarlo.',
+        )
+      "
       :actions="[
         {
           label: 'Crear la primera',
@@ -81,7 +91,7 @@ const isFirstLoad = computed(
         </li>
       </ul>
       <p v-if="hasMore" class="mt-4 text-sm text-muted">
-        Se muestran las 100 revisiones más recientes.
+        {{ $t('Se muestran las 100 revisiones más recientes.') }}
       </p>
     </template>
   </WorkspacePage>

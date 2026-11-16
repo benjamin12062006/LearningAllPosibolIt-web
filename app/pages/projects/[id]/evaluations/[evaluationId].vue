@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { EVALUATION_STATUS_LABELS } from '../../../../types/evaluations';
+import { useImportSnapshot } from '../../../../features/catalog/composables/useProjectImports';
+import { useEvaluation } from '../../../../features/evaluations/composables/useEvaluation';
+import { EVALUATION_STATUS_LABELS } from '../../../../features/evaluations/types/evaluations';
+
+const { t, formatDateTime, language } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -29,13 +33,13 @@ const statusColor = computed(() => {
 
 const sourceSummary = computed(() => {
   if (!evaluation.value) return '';
-  const file = snapshot.value?.originalName ?? 'la importación';
-  return `${file} con la revisión ${evaluation.value.rulesetRevision}`;
+  const file = snapshot.value?.originalName ?? t('la importación');
+  return t('{0} con la revisión {1}', [file, evaluation.value.rulesetRevision]);
 });
 </script>
 
 <template>
-  <WorkspacePage id="evaluacion" title="Evaluación" compact-cover>
+  <WorkspacePage id="evaluacion" :title="$t('Evaluación')" compact-cover>
     <template #subtitle>
       <p v-if="evaluation" class="mt-1 text-sm text-muted">
         {{ sourceSummary }} · {{ formatDateTime(evaluation.createdAt) }}
@@ -51,7 +55,7 @@ const sourceSummary = computed(() => {
         :icon="isActive ? 'i-lucide-loader-circle' : undefined"
         :ui="{ leadingIcon: 'animate-spin motion-reduce:animate-none' }"
       >
-        {{ EVALUATION_STATUS_LABELS[evaluation.status] }}
+        {{ $t(EVALUATION_STATUS_LABELS[evaluation.status]) }}
       </UBadge>
     </template>
 
@@ -79,7 +83,7 @@ const sourceSummary = computed(() => {
         color="warning"
         variant="subtle"
         icon="i-lucide-refresh-cw-off"
-        title="No pudimos actualizar el avance"
+        :title="$t('No pudimos actualizar el avance')"
         :description="error.message"
         :actions="[{ label: 'Actualizar', onClick: () => refresh() }]"
       />
@@ -90,15 +94,23 @@ const sourceSummary = computed(() => {
         color="info"
         variant="subtle"
         icon="i-lucide-hourglass"
-        title="Sigue evaluándose"
-        description="Lleva más de 10 minutos. Actualiza en un rato para ver el resultado."
+        :title="$t('Sigue evaluándose')"
+        :description="
+          $t(
+            'Lleva más de 10 minutos. Actualiza en un rato para ver el resultado.',
+          )
+        "
         :actions="[{ label: 'Actualizar', onClick: () => refresh() }]"
       />
 
       <div v-if="isActive && !isWaitingTooLong" role="status" class="space-y-3">
         <UProgress animation="carousel" />
         <p class="text-sm text-muted">
-          Evaluando cada producto con las reglas. Esta página se actualiza sola.
+          {{
+            $t(
+              'Evaluando cada producto con las reglas. Esta página se actualiza sola.',
+            )
+          }}
         </p>
       </div>
 
@@ -107,8 +119,8 @@ const sourceSummary = computed(() => {
         color="error"
         variant="subtle"
         icon="i-lucide-circle-x"
-        title="La evaluación no terminó"
-        :description="evaluation.error?.message.es"
+        :title="$t('La evaluación no terminó')"
+        :description="evaluation.error?.message[language]"
         :actions="[
           { label: 'Ver las reglas', to: `/projects/${projectId}/rules` },
         ]"
@@ -117,30 +129,36 @@ const sourceSummary = computed(() => {
       <template v-else-if="evaluation.counts">
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <CountTile
-            label="Productos"
+            :label="$t('Productos')"
             :count="evaluation.counts.total"
             icon="i-lucide-package"
             icon-class="text-muted"
           />
           <CountTile
-            label="Válidos"
+            :label="$t('Válidos')"
             :count="evaluation.counts.valid"
             icon="i-lucide-circle-check"
             icon-class="text-success"
           />
           <CountTile
-            label="Inválidos"
+            :label="$t('Inválidos')"
             :count="evaluation.counts.invalid"
             icon="i-lucide-circle-alert"
             icon-class="text-error"
           />
           <CountTile
-            label="Excluidos"
+            :label="$t('Excluidos')"
             :count="evaluation.counts.excluded"
             icon="i-lucide-filter-x"
             icon-class="text-muted"
           />
         </div>
+
+        <FeedViewerAttentionPanel
+          :project-id="projectId"
+          :evaluation-id="evaluationId"
+          class="mt-10"
+        />
 
         <EvaluationReport
           :project-id="projectId"

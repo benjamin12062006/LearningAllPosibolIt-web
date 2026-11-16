@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useOrganizations } from '../../features/organizations/composables/useOrganizations';
+import { tokenFromHash } from '~/features/organizations/utils/invitation-link';
 import { ApiFailure } from '../../services/api-client';
+
+const { t } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -27,7 +31,7 @@ async function accept() {
     const joined = await $organizations.acceptInvitation(value);
     await refreshOrganizations();
     toast.add({
-      title: `Ya eres miembro de ${joined.organization.name}`,
+      title: t('Ya eres miembro de {0}', [joined.organization.name]),
       color: 'success',
       icon: 'i-lucide-party-popper',
     });
@@ -37,7 +41,7 @@ async function accept() {
     failure.value =
       error instanceof ApiFailure
         ? error
-        : new ApiFailure(0, 'No pudimos aceptar la invitación.');
+        : new ApiFailure(0, t('No pudimos aceptar la invitación.'));
   } finally {
     isAccepting.value = false;
   }
@@ -45,20 +49,31 @@ async function accept() {
 </script>
 
 <template>
-  <WorkspacePage id="aceptar-invitacion" title="Invitación" compact-cover>
+  <WorkspacePage
+    id="aceptar-invitacion"
+    :title="$t('Invitación')"
+    compact-cover
+  >
     <UAlert
       v-if="!token"
       color="warning"
       variant="subtle"
       icon="i-lucide-link-2-off"
-      title="El enlace está incompleto"
-      description="Pide a quien te invitó que copie el enlace entero, incluida la parte después de «#»."
+      :title="$t('El enlace está incompleto')"
+      :description="
+        $t(
+          'Pide a quien te invitó que copie el enlace entero, incluida la parte después de «#».',
+        )
+      "
     />
 
     <div v-else class="max-w-lg space-y-5">
       <p class="text-sm text-toned">
-        Te invitaron a una organización. Al aceptar, verás la organización, sus
-        miembros y la lista de sus proyectos, con el rol que te dieron.
+        {{
+          $t(
+            'Te invitaron a una organización. Al aceptar, verás la organización, sus miembros y la lista de sus proyectos, con el rol que te dieron.',
+          )
+        }}
       </p>
 
       <UAlert
@@ -66,16 +81,16 @@ async function accept() {
         color="error"
         variant="subtle"
         icon="i-lucide-circle-alert"
-        title="No se aceptó la invitación"
+        :title="$t('No se aceptó la invitación')"
         :description="failure.message"
       />
 
       <div class="flex flex-wrap gap-2">
         <UButton icon="i-lucide-check" :loading="isAccepting" @click="accept">
-          Aceptar invitación
+          {{ $t('Aceptar invitación') }}
         </UButton>
         <UButton to="/organizations" color="neutral" variant="ghost">
-          Ahora no
+          {{ $t('Ahora no') }}
         </UButton>
       </div>
     </div>

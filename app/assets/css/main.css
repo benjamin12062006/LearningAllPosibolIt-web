@@ -17,7 +17,23 @@
   --color-cover-peach: #f39e77;
   --color-cover-orange: #f78440;
   --color-cover-red: #f54a3c;
+
+  /* Azul = lo de la IA (plan ui 04, §1): `text-ai`, `outline-ai-outline`, `bg-ai-wash`. */
+  --color-ai: var(--app-ai);
+  --color-ai-outline: var(--app-ai-outline);
+  --color-ai-wash: var(--app-ai-wash);
+
+  /* Movimiento (plan ui 04, §6; NN/g). */
+  --ease-enter: ease-out;
+  --ease-exit: ease-in;
+  --ease-move: ease-in-out;
 }
+
+/*
+ * Cada par de texto y fondo de estas dos listas lo mide
+ * `test/unit/theme/contrast.test.ts` (WCAG 2.2 AA): cambiar un valor aquí sin
+ * cumplir el mínimo hace fallar la prueba.
+ */
 
 /* Variante clara propia: la referencia solo muestra el modo oscuro. */
 :root {
@@ -29,11 +45,38 @@
   --ui-text-highlighted: #1c161e;
   --ui-text-toned: #4a404d;
   --ui-text-muted: #6e6472;
-  --ui-text-dimmed: #8c8290;
-  --ui-border: #e6e0e8;
+  --ui-text-dimmed: #8c8290; /* solo desactivado o decorativo */
+  --ui-border: #e6e0e8; /* separadores decorativos */
   --ui-border-muted: #eee9f0;
-  --ui-border-accented: #cfc6d3;
+  --ui-border-accented: #938b97; /* borde de campos y controles: 3:1 */
   --ui-radius: 0.5rem;
+
+  /* violet-600: el 500 de Nuxt UI no llega a 4,5:1 sobre el fondo claro. */
+  --ui-primary: #7f22fe;
+  --ui-success: #008236;
+  --ui-error: #c10007;
+  --ui-warning: #973c00;
+  --ui-info: #1447e6;
+
+  --app-ai: #0069a8;
+  --app-ai-outline: #0084d1;
+  --app-ai-wash: color-mix(in srgb, var(--app-ai-outline) 12%, transparent);
+
+  /* Capas (plan ui 04, §2): la mascota pasa sobre la tabla y bajo los diálogos. */
+  --layer-bar: 10;
+  --layer-panel: 20;
+  --layer-mascot: 25;
+  --layer-dialog: 30;
+  --layer-menu: 35;
+
+  --motion-instant: 100ms;
+  --motion-quick: 150ms;
+  --motion-standard: 200ms;
+  --motion-emphasis: 250ms;
+  --motion-travel: 450ms;
+  /* Cuánto se desplaza lo que entra; 0 con menos movimiento (solo opacidad). */
+  --motion-shift: 16px;
+  --motion-press-scale: 0.98;
 }
 
 /* Valores medidos en docs/fonts/assets/focus-macos-referencia.png (proyecto Copilot). */
@@ -45,11 +88,50 @@
   --ui-text: #f3eff4;
   --ui-text-highlighted: #fbf7fb;
   --ui-text-toned: #c9c1cc;
-  --ui-text-muted: #978d9b;
+  --ui-text-muted: #bfb4c3;
   --ui-text-dimmed: #796f7b;
   --ui-border: #3e3640; /* separadores entre filas */
   --ui-border-muted: #3a323c;
-  --ui-border-accented: #574f5d;
+  --ui-border-accented: #817988;
+
+  --ui-primary: #a684ff;
+  --ui-success: #05df72;
+  --ui-error: #ff6467;
+  --ui-warning: #ffb900;
+  --ui-info: #51a2ff;
+
+  --app-ai: #00bcff;
+  --app-ai-outline: #00bcff;
+  --app-ai-wash: color-mix(in srgb, var(--app-ai-outline) 18%, transparent);
+}
+
+/*
+ * Menos movimiento (WCAG 2.3.3): por el sistema o por el ajuste propio de la
+ * app (`data-motion`, en Cuenta). Lo que entra aparece solo con opacidad y lo
+ * que gira o late se queda quieto.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-shift: 0px;
+    --motion-press-scale: 1;
+    --motion-emphasis: 150ms;
+    --motion-travel: 0ms;
+  }
+}
+
+:root[data-motion='reduced'] {
+  --motion-shift: 0px;
+  --motion-press-scale: 1;
+  --motion-emphasis: 150ms;
+  --motion-travel: 0ms;
+}
+
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
 }
 
 @layer base {
@@ -59,6 +141,12 @@
 
   ::selection {
     @apply bg-primary/40;
+  }
+
+  /* Respuesta inmediata al pulsar (plan ui 04, §5): el control cede un poco. */
+  button:not(:disabled):active,
+  a[role='button']:active {
+    scale: var(--motion-press-scale);
   }
 }
 
@@ -75,4 +163,106 @@
 /* Fila densa con separador tenue, como cada tarea de la referencia. */
 @utility focus-row {
   @apply flex items-center gap-3 border-b border-default py-2.5;
+}
+
+/* Foco de teclado común: 2 px del primario con 2 px de separación. */
+@utility focus-ring {
+  @apply outline-primary focus-visible:outline-2 focus-visible:outline-offset-2;
+}
+
+/* Objetivo táctil: 44 px con puntero grueso (WCAG 2.5.5), 28 px con ratón. */
+@utility touch-target {
+  @apply min-h-7 min-w-7 pointer-coarse:min-h-11 pointer-coarse:min-w-11;
+}
+
+/* Fila de una tabla de datos: 36 px en escritorio y 44 px en táctil. */
+@utility data-row {
+  @apply h-9 pointer-coarse:h-11;
+}
+
+/* Lo que entra desde la derecha: panel lateral y diálogos (plan ui 04, §6). */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    translate: var(--motion-shift) 0;
+  }
+}
+
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    translate: var(--motion-shift) 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Menús, insignias y marcas pequeñas: suben 4 px al aparecer. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 min(4px, var(--motion-shift));
+  }
+}
+
+@utility animate-panel-in {
+  animation: panel-in var(--motion-emphasis) var(--ease-enter);
+}
+
+@utility animate-panel-out {
+  animation: panel-out var(--motion-standard) var(--ease-exit);
+}
+
+@utility animate-fade-in {
+  animation: fade-in var(--motion-quick) var(--ease-enter);
+}
+
+@utility animate-fade-out {
+  animation: fade-out var(--motion-quick) var(--ease-exit);
+}
+
+@utility animate-rise-in {
+  animation: rise-in var(--motion-quick) var(--ease-enter);
+}
+
+/* Celda que propone la IA: fondo suave que entra y se queda, con su contorno. */
+@utility ai-proposed {
+  @apply bg-ai-wash outline outline-1 -outline-offset-1 outline-ai-outline;
+  animation: fade-in var(--motion-emphasis) var(--ease-enter);
+}
+
+/* Zona que la IA está leyendo: contorno discontinuo, sin tapar los datos. */
+@utility ai-reading {
+  @apply outline-2 -outline-offset-2 outline-ai-outline outline-dashed;
+}
+
+/* Filas que entran, salen o se reordenan (`<TransitionGroup name="row">`). */
+.row-enter-active,
+.row-leave-active,
+.row-move {
+  transition:
+    opacity var(--motion-standard) var(--ease-enter),
+    translate var(--motion-standard) var(--ease-move);
+}
+
+.row-enter-from,
+.row-leave-to {
+  opacity: 0;
+  translate: 0 min(4px, var(--motion-shift));
+}
+
+/* Cambio de página: fundido corto. Nuxt lo desactiva con menos movimiento. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-standard);
 }

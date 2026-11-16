@@ -1,24 +1,33 @@
-const DATE_FORMAT = new Intl.DateTimeFormat('es', {
+const dateOptions = {
   day: 'numeric',
   month: 'short',
   year: 'numeric',
-});
+} as const;
 
-const DATE_TIME_FORMAT = new Intl.DateTimeFormat('es', {
+const dateTimeOptions = {
   day: 'numeric',
   month: 'short',
   hour: '2-digit',
   minute: '2-digit',
-});
+} as const;
+
+const dateFormats = {
+  en: new Intl.DateTimeFormat('en-US', dateOptions),
+  es: new Intl.DateTimeFormat('es', dateOptions),
+};
+const dateTimeFormats = {
+  en: new Intl.DateTimeFormat('en-US', dateTimeOptions),
+  es: new Intl.DateTimeFormat('es', dateTimeOptions),
+};
 
 const SIZE_UNITS = ['B', 'KB', 'MB'] as const;
 
-export function formatDate(isoDate: string) {
-  return DATE_FORMAT.format(new Date(isoDate));
+export function formatDate(isoDate: string, language: 'en' | 'es' = 'en') {
+  return dateFormats[language].format(new Date(isoDate));
 }
 
-export function formatDateTime(isoDate: string) {
-  return DATE_TIME_FORMAT.format(new Date(isoDate));
+export function formatDateTime(isoDate: string, language: 'en' | 'es' = 'en') {
+  return dateTimeFormats[language].format(new Date(isoDate));
 }
 
 /** 1 KB = 1024 B, como cuenta la API sus límites (10 MiB). */

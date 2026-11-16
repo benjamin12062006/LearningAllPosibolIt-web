@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { Project } from '../../types/projects';
+import { useProjects } from '../../features/projects/composables/useProjects';
+import type { Project } from '../../features/projects/types/projects';
+
+const { t } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -7,7 +10,7 @@ type StatusFilter = 'listos' | 'por-configurar';
 
 const FILTER_TITLES: Record<StatusFilter, string> = {
   listos: 'Proyectos listos',
-  'por-configurar': 'Por configurar',
+  'por-configurar': t('Por configurar'),
 };
 
 const route = useRoute();
@@ -20,7 +23,7 @@ const filter = computed<StatusFilter | null>(() => {
 });
 
 const title = computed(() =>
-  filter.value ? FILTER_TITLES[filter.value] : 'Proyectos',
+  filter.value ? FILTER_TITLES[filter.value] : t('Proyectos'),
 );
 
 const visibleProjects = computed(() =>
@@ -44,7 +47,7 @@ function matchesFilter(project: Project, value: StatusFilter | null) {
       <UButton
         to="/projects/new"
         icon="i-lucide-plus"
-        aria-label="Nuevo proyecto"
+        :aria-label="$t('Nuevo proyecto')"
         color="neutral"
         variant="ghost"
         class="text-white hover:bg-white/15"
@@ -53,7 +56,7 @@ function matchesFilter(project: Project, value: StatusFilter | null) {
 
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
-        Cada proyecto guarda un catálogo y cómo publicarlo.
+        {{ $t('Cada proyecto guarda un catálogo y cómo publicarlo.') }}
       </p>
     </template>
 
@@ -73,11 +76,11 @@ function matchesFilter(project: Project, value: StatusFilter | null) {
     <UEmpty
       v-else-if="visibleProjects.length === 0"
       icon="i-lucide-folder-plus"
-      :title="filter ? 'Nada por aquí' : 'Todavía no tienes proyectos'"
+      :title="filter ? $t('Nada por aquí') : $t('Todavía no tienes proyectos')"
       :description="
         filter
-          ? 'Ningún proyecto está en este estado.'
-          : 'Crea uno para importar tu catálogo.'
+          ? $t('Ningún proyecto está en este estado.')
+          : $t('Crea uno para importar tu catálogo.')
       "
       :actions="[
         { label: 'Nuevo proyecto', icon: 'i-lucide-plus', to: '/projects/new' },
@@ -91,7 +94,7 @@ function matchesFilter(project: Project, value: StatusFilter | null) {
         </li>
       </ul>
       <p v-if="hasMore" class="mt-4 text-sm text-muted">
-        Se muestran los primeros 100 proyectos.
+        {{ $t('Se muestran los primeros 100 proyectos.') }}
       </p>
     </template>
   </WorkspacePage>

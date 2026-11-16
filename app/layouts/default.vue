@@ -5,7 +5,7 @@
       href="#contenido"
       class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-default focus:p-3"
     >
-      Saltar al contenido
+      {{ $t('Saltar al contenido') }}
     </a>
     <main
       id="contenido"

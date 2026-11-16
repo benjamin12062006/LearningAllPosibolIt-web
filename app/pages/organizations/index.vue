@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useOrganizations } from '../../features/organizations/composables/useOrganizations';
 definePageMeta({ layout: 'workspace' });
 
 const { organizations, status, error, refresh } = useOrganizations();
@@ -10,16 +11,18 @@ const isFirstLoad = computed(
 </script>
 
 <template>
-  <WorkspacePage id="organizaciones" title="Organizaciones">
+  <WorkspacePage id="organizaciones" :title="$t('Organizaciones')">
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
-        Dónde trabajas y con quién. Tu rol decide qué puedes cambiar.
+        {{
+          $t('Dónde trabajas y con quién. Tu rol decide qué puedes cambiar.')
+        }}
       </p>
     </template>
 
     <template #title-actions>
       <UButton icon="i-lucide-plus" @click="isCreateOpen = true">
-        Nueva organización
+        {{ $t('Nueva organización') }}
       </UButton>
       <CreateOrganizationModal v-model:open="isCreateOpen" />
     </template>
@@ -40,8 +43,8 @@ const isFirstLoad = computed(
     <UEmpty
       v-else-if="organizations.length === 0"
       icon="i-lucide-building-2"
-      title="Sin organizaciones"
-      description="Crea una para invitar a otras personas."
+      :title="$t('Sin organizaciones')"
+      :description="$t('Crea una para invitar a otras personas.')"
     />
 
     <ul v-else>

@@ -1,13 +1,17 @@
 import descope, { getSdk, getSessionToken } from '@descope/vue-sdk';
-import { createAccessController } from '../services/access-controller';
-import { createProfileService } from '../services/profile';
+import { createAccessController } from '../features/access/services/access-controller';
+import { createProfileService } from '../features/access/services/profile';
 import {
   AccessFailure,
   type AccessState,
   type SessionService,
-} from '../types/access';
-import { configurationProblem } from '../utils/configuration';
-import { accessDestination, isCurrentRoute } from '../utils/access-destination';
+} from '../features/access/types/access';
+import { configurationProblem } from '../features/access/utils/configuration';
+import {
+  accessDestination,
+  isCurrentRoute,
+} from '../features/access/utils/access-destination';
+import { isGuardedPath } from '../features/access/utils/access-route';
 
 export default defineNuxtPlugin({
   name: 'access',
@@ -157,6 +161,7 @@ export default defineNuxtPlugin({
         (value) => {
           if (value.status === 'checking') return;
           const current = router.currentRoute.value;
+          if (!isGuardedPath(current.path)) return;
           const destination = accessDestination(value, current);
           if (!isCurrentRoute(destination, current)) {
             void router.replace(destination);
@@ -164,7 +169,7 @@ export default defineNuxtPlugin({
         },
         { immediate: true },
       );
-      void access.start();
+      if (isGuardedPath(router.currentRoute.value.path)) void access.start();
       if (import.meta.hot)
         import.meta.hot.dispose(() => {
           stop();

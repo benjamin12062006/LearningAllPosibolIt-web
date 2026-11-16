@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useProjectFeed } from '../../../features/feeds/composables/useProjectFeed';
+import { useProject } from '../../../features/projects/composables/useProjects';
 import { ApiFailure } from '../../../services/api-client';
-import type { Feed } from '../../../types/feeds';
+import type { Feed } from '../../../features/feeds/types/feeds';
+
+const { t } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -35,9 +39,11 @@ async function createFeed() {
     shownUrl.value = publicUrl(created.deliveryUrl);
   } catch (failure) {
     toast.add({
-      title: 'No se creó el feed',
+      title: t('No se creó el feed'),
       description:
-        failure instanceof ApiFailure ? failure.message : 'Inténtalo de nuevo.',
+        failure instanceof ApiFailure
+          ? failure.message
+          : t('Inténtalo de nuevo.'),
       color: 'error',
       icon: 'i-lucide-circle-alert',
     });
@@ -56,8 +62,8 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
   <WorkspacePage id="feed" title="Feed">
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
-        {{ project?.name ?? 'Proyecto' }} · la URL estable que Merchant Center
-        descarga cada día.
+        {{ project?.name ?? $t('Proyecto') }}
+        {{ $t('· la URL estable que Merchant Center descarga cada día.') }}
       </p>
     </template>
 
@@ -79,8 +85,12 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
     <UEmpty
       v-else-if="!feed"
       icon="i-lucide-rss"
-      title="Este proyecto todavía no tiene feed"
-      description="El feed da una URL fija con los productos publicados. Merchant Center la descarga sin iniciar sesión."
+      :title="$t('Este proyecto todavía no tiene feed')"
+      :description="
+        $t(
+          'El feed da una URL fija con los productos publicados. Merchant Center la descarga sin iniciar sesión.',
+        )
+      "
       :actions="[
         {
           label: 'Crear feed',
@@ -95,6 +105,12 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
       <FeedPublishedVersion
         :version="feed.publishedVersion"
         :project-id="projectId"
+        :feed-id="feed.id"
+      />
+      <FeedViewerDeliveryStatus
+        :key="`${feed.generation}:${feed.deliveryEnabled}`"
+        :project-id="projectId"
+        :feed-id="feed.id"
       />
       <FeedDelivery
         :project-id="projectId"
@@ -114,7 +130,7 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
       v-if="shownUrl"
       v-model:open="isUrlOpen"
       :url="shownUrl"
-      title="URL del feed para Merchant Center"
+      :title="$t('URL del feed para Merchant Center')"
       warning-title="Quien tenga esta URL puede descargar el catálogo publicado."
       warning-description="Si la pierdes o se filtra, pide una nueva: la anterior dejará de funcionar."
     />
