@@ -24,7 +24,7 @@ it('copia el texto completo y confirma después de escribirlo', async () => {
   expect(wrapper.emitted('copied')).toBeUndefined();
   finish();
   await flushPromises();
-  expect(wrapper.get('button').text()).toBe('Copiado');
+  expect(wrapper.get('button').text()).toBe('Copied');
   expect(wrapper.emitted('copied')).toHaveLength(1);
   wrapper.unmount();
 });
