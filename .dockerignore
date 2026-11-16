@@ -1,0 +1,28 @@
+# Lo que no entra al contexto de `docker build` (deploys, plan 02, regla 1).
+# El build solo necesita: manifiestos, nuxt.config.ts, tsconfig.json, app/ y public/.
+
+# Git, editor y sistema
+.git
+.gitignore
+.idea
+.DS_Store
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Dependencias, salidas y cachés locales
+node_modules
+.nuxt
+.output
+.data
+*.log
+
+# Lo que no forma parte de la imagen
+docs
+bitacora-construccion
+README.md
+Dockerfile
+.dockerignore
+.gcloudignore
