@@ -3,3 +3,9 @@ node_modules
 .output
 pnpm-lock.yaml
 .env
+
+# Copias exactas del motor de cálculo de Nest (scripts/check-calc-engine.mjs).
+app/features/worksheets/calc-engine/exact-decimal.ts
+app/features/worksheets/calc-engine/formula.ts
+app/features/worksheets/calc-engine/cell-values.ts
+app/features/worksheets/calc-engine/row-evaluation.ts

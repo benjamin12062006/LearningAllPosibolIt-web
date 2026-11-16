@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useEvaluations } from '../../../../features/evaluations/composables/useEvaluation';
+import { useProject } from '../../../../features/projects/composables/useProjects';
 definePageMeta({ layout: 'workspace' });
 
 const route = useRoute();
@@ -16,17 +18,21 @@ const isFirstLoad = computed(
 </script>
 
 <template>
-  <WorkspacePage id="evaluaciones" title="Evaluaciones">
+  <WorkspacePage id="evaluaciones" :title="$t('Evaluaciones')">
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">
-        {{ project?.name ?? 'Proyecto' }} · cada evaluación aplica una revisión
-        de reglas a una importación.
+        {{ project?.name ?? $t('Proyecto') }}
+        {{
+          $t(
+            '· cada evaluación aplica una revisión de reglas a una importación.',
+          )
+        }}
       </p>
     </template>
 
     <template #title-actions>
       <UButton icon="i-lucide-play" @click="isEvaluateOpen = true">
-        Evaluar
+        {{ $t('Evaluar') }}
       </UButton>
       <EvaluateDialog v-model:open="isEvaluateOpen" :project-id="projectId" />
     </template>
@@ -49,8 +55,12 @@ const isFirstLoad = computed(
     <UEmpty
       v-else-if="evaluations.length === 0"
       icon="i-lucide-clipboard-check"
-      title="Todavía no hay evaluaciones"
-      description="Evalúa una importación con una revisión de reglas para ver qué productos acepta Google."
+      :title="$t('Todavía no hay evaluaciones')"
+      :description="
+        $t(
+          'Evalúa una importación con una revisión de reglas para ver qué productos acepta Google.',
+        )
+      "
     />
 
     <template v-else>
@@ -63,7 +73,7 @@ const isFirstLoad = computed(
         </li>
       </ul>
       <p v-if="hasMore" class="mt-4 text-sm text-muted">
-        Se muestran las 100 evaluaciones más recientes.
+        {{ $t('Se muestran las 100 evaluaciones más recientes.') }}
       </p>
     </template>
   </WorkspacePage>

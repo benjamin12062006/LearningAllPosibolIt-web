@@ -75,19 +75,23 @@ El historial `/projects/:id/evaluations` usa `GET /projects/:id/evaluations`, a�
 
 ```text
 app/
-├── pages/          # Acceso, cuenta y proyectos
-├── layouts/        # default (acceso) y workspace (lateral + panel)
-├── components/     # FocusCover, WorkspacePage, formularios, filas y tablas
-├── composables/    # useAccess, useProjects, useProjectImports, useRulesets, useEvaluation, useEvaluationReport, useEvaluationExport, useProjectFeed, useFeedVersions, useFeedRefresh, useOrganizations
-├── plugins/        # access (SDK y sesión) y api (servicios con token)
-├── middleware/     # Navegación coherente con el estado de acceso
-├── services/       # Cliente HTTP, proyectos, importaciones, reglas, evaluaciones, exportaciones, feeds, organizaciones, acceso y perfil
-├── types/          # Contratos de la API con comprobaciones de forma
-├── utils/          # Rutas de acceso, formato y comprobaciones pequeñas
-└── assets/css/     # Tailwind + Nuxt UI y tokens Focus
+├── pages/          # Entradas de rutas y sus parámetros de Nuxt
+├── features/
+│   ├── access/  organizations/  projects/
+│   ├── catalog/  rulesets/  evaluations/  exports/
+│   ├── feeds/  feed-viewer/
+│   └── worksheets/  assistant/  integrations/
+├── layouts/        # Marco de acceso y espacio de trabajo
+├── components/     # Tema Focus, layouts de contenido y controles compartidos
+├── composables/    # Estado de interfaz compartido por varias funcionalidades
+├── services/       # Transporte HTTP autenticado
+├── plugins/        # Sesión Descope y composición de los servicios REST
+└── assets/css/     # Tema, contraste y movimiento
 ```
 
-El token Descope solo existe en el navegador. Por eso los datos se piden en el cliente (`useAsyncData` con `server: false`) y las páginas del espacio de trabajo se montan solo cuando la sesión está lista. El cliente HTTP renueva el token y reintenta una vez ante un 401, y muestra el mensaje en español que devuelve la API. Nest sigue siendo quien valida identidad, permisos y datos.
+Dentro de cada funcionalidad están sus `components`, `composables`, `services`, `types` y `utils` cuando los necesita. En hojas, los subdirectorios de componentes reúnen libros, cuadrícula, vistas, borradores y transferencias. Los directorios con paréntesis organizan archivos y conservan el nombre autoimportado del componente. Las pruebas viven en `test/unit/<funcionalidad>` y `test/nuxt`.
+
+La sesión Descope se restaura en el navegador tras la hidratación. El cliente HTTP renueva el token y reintenta una vez ante un 401. Nest valida identidad, permisos y datos. Véase el [plan de organización](docs/plans/ui/06-plan-organizar-la-web-por-funcionalidad.md).
 
 ## Comprobaciones
 

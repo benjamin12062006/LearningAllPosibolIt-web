@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAccess } from '../features/access/composables/useAccess';
 const { state, actions } = useAccess();
 const route = useRoute();
 const active = computed(() => state.value.status === 'authenticating');
@@ -35,15 +36,15 @@ onBeforeRouteLeave(() => {
 
 <template>
   <div v-if="state.status === 'signedOut' || state.status === 'authenticating'">
-    <p class="focus-section-label">Tu espacio de trabajo</p>
+    <p class="focus-section-label">{{ $t('Tu espacio de trabajo') }}</p>
     <h1 class="mt-3 text-3xl font-light tracking-tight text-highlighted">
-      {{ active ? 'Ya casi estás dentro.' : 'Qué bueno verte.' }}
+      {{ active ? $t('Ya casi estás dentro.') : $t('Qué bueno verte.') }}
     </h1>
     <p class="mt-3 text-base text-toned">
       {{
         active
-          ? 'Continúa para acceder a tu cuenta.'
-          : 'Entra o crea tu cuenta para comenzar.'
+          ? $t('Continúa para acceder a tu cuenta.')
+          : $t('Entra o crea tu cuenta para comenzar.')
       }}
     </p>
 
@@ -53,7 +54,7 @@ onBeforeRouteLeave(() => {
       </ClientOnly>
       <div class="mt-6 flex justify-center">
         <UButton color="neutral" variant="ghost" @click="cancel">
-          Cancelar
+          {{ $t('Cancelar') }}
         </UButton>
       </div>
     </template>
@@ -68,7 +69,7 @@ onBeforeRouteLeave(() => {
         trailing-icon="i-lucide-arrow-right"
         @click="actions.beginSignIn"
       >
-        Continuar
+        {{ $t('Continuar') }}
       </UButton>
       <p v-if="state.notice" role="status" class="mt-4 text-sm text-muted">
         {{ state.notice }}
@@ -78,7 +79,7 @@ onBeforeRouteLeave(() => {
     <footer
       class="mt-9 border-t border-default pt-5 text-center text-sm text-muted"
     >
-      Tu cuenta, bajo tu control.
+      {{ $t('Tu cuenta, bajo tu control.') }}
     </footer>
   </div>
   <SessionProgress v-else />

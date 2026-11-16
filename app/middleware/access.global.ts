@@ -1,5 +1,6 @@
-import { accessDestination, isCurrentRoute } from '../utils/access-destination';
-import { isGuardedPath } from '../utils/access-route';
+import { useAccess } from '../features/access/composables/useAccess';
+import { accessDestination, isCurrentRoute } from '../features/access/utils/access-destination';
+import { isGuardedPath } from '../features/access/utils/access-route';
 
 export default defineNuxtRouteMiddleware(async (to) => {
   // Flujos de acceso antiguos vuelven a /: conservar sus parámetros de callback.

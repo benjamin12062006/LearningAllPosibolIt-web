@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useProjectImports } from '../../../../features/catalog/composables/useProjectImports';
+import { useRulesets } from '../../../../features/rulesets/composables/useRulesets';
+
+const { t } = useAppLocale();
+
 definePageMeta({ layout: 'workspace' });
 
 const route = useRoute();
@@ -46,8 +51,8 @@ const isMissingBase = computed(
 );
 
 const subtitle = computed(() => {
-  if (base.value) return `Parte de la revisión ${base.value.revision}.`;
-  return 'Parte de cero.';
+  if (base.value) return t('Parte de la revisión {0}.', [base.value.revision]);
+  return t('Parte de cero.');
 });
 
 function retry() {
@@ -57,7 +62,11 @@ function retry() {
 </script>
 
 <template>
-  <WorkspacePage id="nueva-revision" title="Nueva revisión" compact-cover>
+  <WorkspacePage
+    id="nueva-revision"
+    :title="$t('Nueva revisión')"
+    compact-cover
+  >
     <template #subtitle>
       <p class="mt-1 text-sm text-muted">{{ subtitle }}</p>
     </template>
@@ -82,7 +91,7 @@ function retry() {
       color="warning"
       variant="subtle"
       icon="i-lucide-file-question"
-      :title="`No existe la revisión ${requestedBase}`"
+      :title="$t('No existe la revisión {0}', [requestedBase])"
       :actions="[
         {
           label: 'Partir de la más reciente',
@@ -94,8 +103,10 @@ function retry() {
     <UEmpty
       v-else-if="readyImports.length === 0"
       icon="i-lucide-file-spreadsheet"
-      title="Primero importa tu catálogo"
-      description="Las columnas para mapear se leen de una importación lista."
+      :title="$t('Primero importa tu catálogo')"
+      :description="
+        $t('Las columnas para mapear se leen de una importación lista.')
+      "
       :actions="[{ label: 'Ir al catálogo', to: `/projects/${projectId}` }]"
     />
 

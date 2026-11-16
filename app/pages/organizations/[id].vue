@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import {
+  useOrganizations,
+  useOrganization,
+} from '../../features/organizations/composables/useOrganizations';
 import { ApiFailure } from '../../services/api-client';
 import {
   ROLE_LABELS,
   canManageMembers,
   canOwn,
   isArchived,
-} from '../../types/organizations';
+} from '../../features/organizations/types/organizations';
+
+const { t } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -24,7 +30,7 @@ const isWorking = ref(false);
 
 const organization = computed(() => detail.value?.organization ?? null);
 const access = computed(() => detail.value?.access ?? null);
-const title = computed(() => organization.value?.name ?? 'Organización');
+const title = computed(() => organization.value?.name ?? t('Organización'));
 
 const archived = computed(() =>
   organization.value ? isArchived(organization.value) : false,
@@ -45,14 +51,17 @@ const canManage = computed(
 
 async function onLeft() {
   await refreshOrganizations();
-  toast.add({ title: 'Saliste de la organización', icon: 'i-lucide-log-out' });
+  toast.add({
+    title: t('Saliste de la organización'),
+    icon: 'i-lucide-log-out',
+  });
   await navigateTo('/organizations');
 }
 
 const subtitle = computed(() => {
   if (!organization.value || !access.value) return '';
   const kind = organization.value.kind === 'personal' ? 'Personal' : 'Equipo';
-  return `${kind} · tu rol: ${ROLE_LABELS[access.value.role]}`;
+  return t('{0} · tu rol: {1}', [kind, t(ROLE_LABELS[access.value.role])]);
 });
 
 async function setArchived(next: boolean) {
@@ -61,15 +70,17 @@ async function setArchived(next: boolean) {
     replaceDetail(await $organizations.setArchived(organizationId.value, next));
     await refreshOrganizations();
     toast.add({
-      title: next ? 'Organización archivada' : 'Organización restaurada',
+      title: next ? t('Organización archivada') : t('Organización restaurada'),
       color: 'success',
       icon: next ? 'i-lucide-archive' : 'i-lucide-archive-restore',
     });
   } catch (failure) {
     toast.add({
-      title: 'No se pudo cambiar',
+      title: t('No se pudo cambiar'),
       description:
-        failure instanceof ApiFailure ? failure.message : 'Inténtalo de nuevo.',
+        failure instanceof ApiFailure
+          ? failure.message
+          : t('Inténtalo de nuevo.'),
       color: 'error',
       icon: 'i-lucide-circle-alert',
     });
@@ -108,8 +119,10 @@ async function setArchived(next: boolean) {
         color="neutral"
         variant="subtle"
         icon="i-lucide-archive"
-        title="Organización archivada"
-        description="Se puede consultar, pero no cambiar miembros ni invitaciones."
+        :title="$t('Organización archivada')"
+        :description="
+          $t('Se puede consultar, pero no cambiar miembros ni invitaciones.')
+        "
         :actions="
           canArchive
             ? [
@@ -144,16 +157,21 @@ async function setArchived(next: boolean) {
         class="border-t border-default pt-6"
       >
         <h2 id="archivar" class="text-sm font-medium text-highlighted">
-          Archivar organización
+          {{ $t('Archivar organización') }}
         </h2>
         <p class="mt-1 text-sm text-muted">
-          Queda en modo lectura: nadie podrá cambiar miembros ni invitaciones
-          hasta restaurarla.
+          {{
+            $t(
+              'Queda en modo lectura: nadie podrá cambiar miembros ni invitaciones hasta restaurarla.',
+            )
+          }}
         </p>
         <UModal
           v-model:open="isArchiveOpen"
-          title="¿Archivar esta organización?"
-          :description="`«${organization.name}» quedará en modo lectura.`"
+          :title="$t('¿Archivar esta organización?')"
+          :description="
+            $t('«{0}» quedará en modo lectura.', [organization.name])
+          "
         >
           <UButton
             class="mt-4"
@@ -161,7 +179,7 @@ async function setArchived(next: boolean) {
             variant="soft"
             icon="i-lucide-archive"
           >
-            Archivar
+            {{ $t('Archivar') }}
           </UButton>
           <template #footer>
             <div class="flex w-full justify-end gap-2">
@@ -170,7 +188,7 @@ async function setArchived(next: boolean) {
                 variant="ghost"
                 @click="isArchiveOpen = false"
               >
-                Cancelar
+                {{ $t('Cancelar') }}
               </UButton>
               <UButton
                 color="warning"
@@ -178,7 +196,7 @@ async function setArchived(next: boolean) {
                 :loading="isWorking"
                 @click="setArchived(true)"
               >
-                Archivar
+                {{ $t('Archivar') }}
               </UButton>
             </div>
           </template>

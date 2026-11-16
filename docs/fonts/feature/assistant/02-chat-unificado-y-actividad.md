@@ -1,0 +1,19 @@
+# 02 — Fuentes del chat unificado y su actividad
+
+Fecha de creación: 2026-11-15  
+Fecha de consulta: 2026-11-15  
+Tipo de fuente: transcripción original, documentación oficial y código local.  
+Relacionada con: [plan del chat unificado](../../../plans/feature/assistant/01-plan-chat-unificado.md) y [fuentes de la mascota](01-cambios-de-la-ia-en-vivo-y-mascota.md).
+
+| Fuente | Evidencia consultada | Aplicación |
+| --- | --- | --- |
+| F1. Fernando Herrera, Nuxt Full Stack, sección 4, «48. Diseño del panel administrativo», líneas 15–31, «DashboardGroup» y «UDropdownMenu». [Original](</Users/benji/Documents/chrome-extencions/trancripciones/Nuxt/Nuxt Full Stack/Sección 4 NuxtUI - Estructuras y componentes/48. Diseño del panel administrativo.md>) | El layout mantiene el lateral y aloja el contenido mediante un slot. La [ficha del curso](../../ui/01-curso-nuxt-full-stack-nuxt-ui.md) registra el contexto del ejemplo. | Mantener el asistente en el layout autenticado y reutilizar el lateral en la vista de Chats. El principio de composición basta para esta adaptación. |
+| F2. [Vue, Teleport](https://vuejs.org/guide/built-ins/teleport.html), Basic Usage y Using with Components. [Nuxt UI, SelectMenu](https://ui.nuxt.com/docs/components/select-menu), Usage. | Teleport cambia la posición en el DOM y mantiene la jerarquía de componentes. SelectMenu ofrece búsqueda, teclado y una identidad estable por elemento. | Reubicar el mismo chat y usar un selector de historial Nuxt UI. |
+| F3. [markdown-it, Safety](https://github.com/markdown-it/markdown-it/blob/master/docs/safety.md) y [Marked, Renderer](https://marked.js.org/using_pro#the-renderer-renderer). | Se puede tratar el HTML de entrada como texto y limitar los protocolos de enlaces. Marked expone los renderizadores que permiten fijar esas reglas. | Reutilizar Marked 17.0.6, ya instalado por el editor de Nuxt UI, con HTML e imágenes como texto y enlaces locales o HTTP(S). |
+| F4. [Gemini API, Function calling](https://ai.google.dev/gemini-api/docs/function-calling), funcionamiento de las llamadas y llamadas secuenciales. | El modelo recibe declaraciones y resultados en cada paso. La aplicación ejecuta la operación y devuelve el resultado. | Usar el catálogo completo de Nest y un contexto breve con el flujo de trabajo antes de pedir resultados. |
+| F5. [Contrato de chat](../../../../../LearningAllPosibolIt/contracts/chat/README.md), [catálogo](../../../../../LearningAllPosibolIt/src/agent-runs/operations/agent-operation-catalog.ts) y [plan MCP](../../../../../LearningAllPosibolIt-ai/docs/plans/feature/agente/04-plan-servidor-mcp-local.md). | La conversación general ya puede listar el historial del proyecto. Nest y MCP comparten operaciones. Los eventos SSE llevan secuencia, objetivo y resultado. | Separar el contexto de cada mensaje del historial. Navegar usando referencias del servidor y mantener el circuito de confirmación. |
+| F6. [Toolbox Python](../../../../../LearningAllPosibolIt-ai/src/ktsu_ai/application/agent_application/agent_toolbox.py) y [límites de Nest](../../../../../LearningAllPosibolIt/src/agent-runs/agent-runs.types.ts). | El texto reportado se genera en la aplicación tras agotar su límite local. | Ajustar juntos los presupuestos, distinguir errores del proveedor y reutilizar lecturas idénticas durante la ejecución. |
+
+La búsqueda en la biblioteca aportó evidencia de composición con Nuxt UI. El contrato de la app y la documentación oficial aportaron la evidencia del catálogo, SSE y las llamadas secuenciales de Gemini.
+
+Las capturas aportadas el 15 de noviembre muestran títulos largos que ocupaban varias líneas y el mensaje genérico de una ejecución interrumpida. La consulta de solo lectura registró seis operaciones y el código `AGENT_RUN_FAILED`. El historial muestra un fallo de la ejecución y conserva los pasos que llegaron a completarse.

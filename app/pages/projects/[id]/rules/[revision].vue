@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import { useRuleset } from '../../../../features/rulesets/composables/useRulesets';
+import {
+  RULE_TYPE_ICONS,
+  describeRule,
+} from '~/features/rulesets/utils/describe-rule';
 import {
   ATTRIBUTE_LABELS,
   PRODUCT_ATTRIBUTES,
   isRequiredAttribute,
   type ProductAttribute,
-} from '../../../../types/rulesets';
+} from '../../../../features/rulesets/types/rulesets';
+
+const { formatDate, language, t } = useAppLocale();
 
 definePageMeta({ layout: 'workspace' });
 
@@ -15,14 +22,14 @@ const revision = computed(() => Number(route.params.revision));
 
 const { ruleset, status, error, refresh } = useRuleset(projectId, revision);
 
-const title = computed(() => `Revisión ${route.params.revision}`);
+const title = computed(() => t('Revisión {0}', [route.params.revision]));
 const isEvaluateOpen = ref(false);
 
 /** Todos los datos de Google en el mismo orden, mapeados o no. */
 const mappingRows = computed(() =>
   PRODUCT_ATTRIBUTES.map((attribute) => ({
     attribute,
-    label: ATTRIBUTE_LABELS[attribute],
+    label: t(ATTRIBUTE_LABELS[attribute]),
     column: columnFor(attribute),
     required: isRequiredAttribute(attribute),
   })),
@@ -46,10 +53,10 @@ function columnFor(attribute: ProductAttribute) {
           color="neutral"
           variant="soft"
         >
-          Usar como base
+          {{ $t('Usar como base') }}
         </UButton>
         <UButton icon="i-lucide-play" @click="isEvaluateOpen = true">
-          Evaluar con esta revisión
+          {{ $t('Evaluar con esta revisión') }}
         </UButton>
       </div>
       <EvaluateDialog
@@ -62,8 +69,10 @@ function columnFor(attribute: ProductAttribute) {
 
     <template #subtitle>
       <p v-if="ruleset" class="mt-1 text-sm text-muted">
-        Guardada el {{ formatDate(ruleset.createdAt) }}. No se modifica: para
-        cambiarla se crea la revisión siguiente.
+        {{ $t('Guardada el') }} {{ formatDate(ruleset.createdAt)
+        }}{{
+          $t('. No se modifica: para cambiarla se crea la revisión siguiente.')
+        }}
       </p>
     </template>
 
@@ -91,9 +100,11 @@ function columnFor(attribute: ProductAttribute) {
 
     <template v-else-if="ruleset">
       <section aria-labelledby="mapeo">
-        <h2 id="mapeo" class="text-lg font-medium text-highlighted">Mapeo</h2>
+        <h2 id="mapeo" class="text-lg font-medium text-highlighted">
+          {{ $t('Mapeo') }}
+        </h2>
         <p class="mt-1 text-sm text-muted">
-          Qué columna del CSV da cada dato de Google.
+          {{ $t('Qué columna del CSV da cada dato de Google.') }}
         </p>
         <dl class="mt-3">
           <div
@@ -109,24 +120,28 @@ function columnFor(attribute: ProductAttribute) {
                 variant="outline"
                 size="sm"
               >
-                Obligatorio
+                {{ $t('Obligatorio') }}
               </UBadge>
             </dt>
             <dd class="text-sm">
               <code v-if="row.column" class="text-highlighted">{{
                 row.column
               }}</code>
-              <span v-else class="text-dimmed">Sin mapear</span>
+              <span v-else class="text-dimmed">{{ $t('Sin mapear') }}</span>
             </dd>
           </div>
         </dl>
       </section>
 
       <section aria-labelledby="reglas" class="mt-10">
-        <h2 id="reglas" class="text-lg font-medium text-highlighted">Reglas</h2>
-        <p class="mt-1 text-sm text-muted">Se aplican en este orden.</p>
+        <h2 id="reglas" class="text-lg font-medium text-highlighted">
+          {{ $t('Reglas') }}
+        </h2>
+        <p class="mt-1 text-sm text-muted">
+          {{ $t('Se aplican en este orden.') }}
+        </p>
         <p v-if="ruleset.rules.length === 0" class="mt-3 text-sm text-dimmed">
-          Sin reglas: los datos se usan tal como vienen del CSV.
+          {{ $t('Sin reglas: los datos se usan tal como vienen del CSV.') }}
         </p>
         <ol v-else class="mt-3">
           <li
@@ -142,7 +157,7 @@ function columnFor(attribute: ProductAttribute) {
               class="size-4 shrink-0 text-primary"
             />
             <span class="min-w-0 flex-1 text-sm break-words">{{
-              describeRule(rule)
+              describeRule(rule, t, language)
             }}</span>
           </li>
         </ol>

@@ -14,10 +14,10 @@ El feed existía pero no se podía publicar desde la web. La API publica cualqui
 
 | Decisión                         | Evidencia                    | Aplicación                                                                                                                                                                                                     |
 | -------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Publicar con la generación leída | G6 (D6)                      | `publish` en [useProjectFeed.ts](../../../app/composables/useProjectFeed.ts): envía `feed.generation`; con `409 FEED_GENERATION_CONFLICT` vuelve a leer el feed y deja que la persona decida otra vez          |
-| Publicar desde la exportación    | Plan, «Publicar»             | [FeedPublishButton.vue](../../../app/components/FeedPublishButton.vue) en [ExportPanel.vue](../../../app/components/ExportPanel.vue): sin feed lleva a crearlo; si esa exportación ya es la publicada, lo dice |
-| Historial paginado en la URL     | G1 (`versions`), C1/C2       | [useFeedVersions.ts](../../../app/composables/useFeedVersions.ts) con `?pagina=`; como la API solo da `hasMore`, se navega con «Más recientes» y «Anteriores»                                                  |
-| Volver a una versión             | G6 (D6: también una antigua) | [FeedVersions.vue](../../../app/components/FeedVersions.vue): «Volver a publicar» si conserva `exportId`, con confirmación porque cambia lo que descarga Merchant Center                                       |
+| Publicar con la generación leída | G6 (D6)                      | `publish` en [useProjectFeed.ts](../../../app/features/feeds/composables/useProjectFeed.ts): envía `feed.generation`; con `409 FEED_GENERATION_CONFLICT` vuelve a leer el feed y deja que la persona decida otra vez          |
+| Publicar desde la exportación    | Plan, «Publicar»             | [FeedPublishButton.vue](../../../app/features/feeds/components/FeedPublishButton.vue) en [ExportPanel.vue](../../../app/features/exports/components/ExportPanel.vue): sin feed lleva a crearlo; si esa exportación ya es la publicada, lo dice |
+| Historial paginado en la URL     | G1 (`versions`), C1/C2       | [useFeedVersions.ts](../../../app/features/feeds/composables/useFeedVersions.ts) con `?pagina=`; como la API solo da `hasMore`, se navega con «Más recientes» y «Anteriores»                                                  |
+| Volver a una versión             | G6 (D6: también una antigua) | [FeedVersions.vue](../../../app/features/feeds/components/FeedVersions.vue): «Volver a publicar» si conserva `exportId`, con confirmación porque cambia lo que descarga Merchant Center                                       |
 
 ### Ajustes al escribir el código
 
