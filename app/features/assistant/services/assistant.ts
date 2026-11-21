@@ -13,6 +13,7 @@ import {
   type Conversation,
   type ConversationMessage,
   type Proposal,
+  type ProposalDecision,
   type RunEvent,
 } from '../types/assistant';
 import { createRunEventReader } from '../utils/run-events';
@@ -185,7 +186,10 @@ export function createAssistantService(
           body: { proposalHash: proposal.hash },
         },
       );
-      return fieldOf(response, 'proposal', isProposal);
+      return {
+        proposal: fieldOf(response, 'proposal', isProposal),
+        continuation: continuationOf(response),
+      } satisfies ProposalDecision;
     },
     async events(
       scope: ProjectScope,
@@ -267,6 +271,12 @@ function runPath(scope: ProjectScope, id: string) {
 
 function segment(id: string) {
   return encodeURIComponent(id);
+}
+
+/** Al confirmar, el asistente sigue en una ejecución nueva; rechazar no trae ninguna. */
+function continuationOf(response: unknown): AssistantRun | null {
+  if (!isRecord(response) || !isRun(response.continuation)) return null;
+  return response.continuation;
 }
 
 function fieldOf<T>(

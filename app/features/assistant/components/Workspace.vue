@@ -126,9 +126,27 @@ function affectedQueries(proposal: Proposal) {
     case 'propose_catalog_from_sheet':
       return [`imports:${projectId}`];
     case 'propose_sheet_layout':
+    case 'duplicate_worksheet':
+    case 'open_catalog_as_worksheet':
       return [`workbooks:${projectId}:true`, `workbooks:${projectId}:false`];
     case 'suggest_view':
+    case 'update_saved_view':
       return target ? [`views:${projectId}:${target.worksheetId}`] : [];
+    case 'delete_catalog_import':
+      return [`imports:${projectId}`];
+    case 'set_feed_source':
+    case 'set_feed_schedule':
+    case 'approve_feed_policy':
+      return [`feed:${projectId}`];
+    case 'submit_changeset':
+    case 'reopen_changeset':
+    case 'reject_changeset':
+    case 'rebase_changeset':
+    case 'propose_revert':
+    case 'create_import_mapping':
+    case 'delete_import_mapping':
+    case 'export_worksheet':
+      return target ? [`worksheet:${projectId}:${target.worksheetId}`] : [];
     default:
       return [];
   }

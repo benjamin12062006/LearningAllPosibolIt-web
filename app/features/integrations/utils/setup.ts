@@ -97,16 +97,21 @@ export function resolveMcpSetup(
   return { status: 'ready', instructions };
 }
 
-export function cliSetup(apiUrl: string) {
+export function cliProjectContext(
+  apiUrl: string,
+  webOrigin: string,
+  scope: { organizationId: string; projectId: string },
+  projectName: string,
+) {
   const api = publicUrl(apiUrl, true);
-  const root = api ? new URL(api).origin : '<ORIGEN_API_KTSU>';
-  return [
-    'npm install -g ./packages/ktsu-cli',
-    `ktsu config set --api-url '${root}'`,
-    'ktsu auth status',
-    'ktsu operations list',
-    'ktsu read get_project_overview',
-  ].join('\n');
+  const web = publicUrl(webOrigin, true);
+  return {
+    ...(api && { apiUrl: new URL(api).origin }),
+    ...(web && { webUrl: new URL(web).origin }),
+    organizationId: scope.organizationId,
+    projectId: scope.projectId,
+    projectName,
+  };
 }
 
 export function setupPrompt(input: PublicSetup, canUseLocalApi = true) {
@@ -133,7 +138,7 @@ export function setupPrompt(input: PublicSetup, canUseLocalApi = true) {
     `Abre Integraciones en ${address} si tienes navegador. Si no, usa las instrucciones que te comparta desde la pantalla.`,
     'Identifica el cliente y confirma conmigo la organización y el proyecto. Conserva las entradas existentes de configuración.',
     nextStep,
-    'Comprueba por separado la CLI de KTSU. Si tienes acceso a su paquete privado, usa la configuración y los comandos de lectura de la pantalla.',
+    'Comprueba por separado la CLI de KTSU. Está dentro de la skill ktsu-cli: en Integraciones → CLI, usa «Copiar skill completa», reconstrúyela y ejecuta sus comandos con pnpm run ktsu.',
     'Indícame dónde autorizar la cuenta o configurar las variables requeridas. Mantén los valores secretos fuera del chat y de archivos compartidos.',
     'Para verificar, descubre las herramientas MCP y realiza una lectura del proyecto. Para la CLI, comprueba la sesión, lista las operaciones y prueba la lectura get_project_overview.',
     'Indica qué conexión quedó verificada y qué autorización o prueba sigue pendiente.',

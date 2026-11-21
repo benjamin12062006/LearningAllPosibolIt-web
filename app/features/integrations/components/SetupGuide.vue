@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  cliSetup,
   MCP_CLIENTS,
   resolveMcpSetup,
   setupPrompt,
@@ -13,6 +12,7 @@ const props = defineProps<{
   projectId: string;
   oauthResourceUrl: string | null;
   local: boolean;
+  cliOAuthAvailable?: boolean;
 }>();
 const tab = defineModel<'mcp' | 'cli'>('tab', { required: true });
 const selectedMode = ref<McpMode | null>(null);
@@ -26,7 +26,6 @@ const mode = computed({
 });
 const client = ref<McpClient>('codex');
 const webOrigin = useRequestURL().origin;
-const { apiBaseUrl } = useRuntimeConfig().public;
 const setup = computed(() => ({
   client: client.value,
   mode: mode.value,
@@ -38,7 +37,15 @@ const resolved = computed(() => resolveMcpSetup(setup.value, props.local));
 const instructions = computed(() => resolved.value.instructions);
 const canIssueCredential = computed(() => resolved.value.status === 'ready');
 const prompt = computed(() => setupPrompt(setup.value, props.local));
-const cli = computed(() => cliSetup(apiBaseUrl));
+const preferredCliMethod = ref<'oauth' | 'token'>('oauth');
+const cliMethod = computed(() =>
+  props.cliOAuthAvailable ? preferredCliMethod.value : 'token',
+);
+const cliMethods = computed(() => [
+  { label: t('Cuenta Descope (OAuth)'), value: 'oauth' },
+  { label: t('Credencial de proyecto'), value: 'token' },
+]);
+const { t } = useAppLocale();
 const tabs = [
   { value: 'mcp', label: 'MCP' },
   { value: 'cli', label: 'CLI' },
@@ -169,14 +176,18 @@ function download() {
     </template>
     <template #cli>
       <section class="space-y-4">
-        <p class="text-sm text-muted">
+        <UFormField v-if="cliOAuthAvailable" :label="$t('Método de acceso')">
+          <USelect v-model="preferredCliMethod" :items="cliMethods" />
+        </UFormField>
+        <p v-if="cliMethod === 'oauth'" class="text-sm text-muted">
           {{
             $t(
-              'Instala la CLI privada desde el repositorio de Nest con Node 24 o superior.',
+              'Autoriza este proyecto y completa el inicio de sesión en el navegador. Para solicitar solo lectura, añade',
             )
           }}
+          <code>--read-only</code>.
         </p>
-        <p class="text-sm text-muted">
+        <p v-else class="text-sm text-muted">
           {{ $t('Indica la credencial en') }} <code>KTSU_TOKEN</code>
           {{
             $t(
@@ -185,15 +196,14 @@ function download() {
           }}
           <code>--token-stdin</code>.
         </p>
-        <slot name="cli" />
-        <pre
-          class="overflow-auto whitespace-pre-wrap break-all rounded-lg border border-default bg-muted p-3 text-sm"
-          >{{ cli }}</pre>
-        <UiCopyButton :text="cli" :label="$t('Copiar comandos de CLI')" />
+        <slot name="cli" :method="cliMethod" />
       </section>
     </template>
   </UiTabs>
-  <details class="mt-5 rounded-lg border border-default p-4">
+  <details
+    v-if="tab === 'mcp'"
+    class="mt-5 rounded-lg border border-default p-4"
+  >
     <summary class="cursor-pointer font-medium">
       {{ $t('Configurar con un agente externo') }}
     </summary>

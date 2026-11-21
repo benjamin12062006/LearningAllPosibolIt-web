@@ -4,7 +4,6 @@ import type { Proposal } from '../../assistant/types/assistant';
 
 const { t } = useAppLocale();
 
-
 const route = useRoute();
 const { $integrations } = useNuxtApp();
 const { run, isRunning, failure } = useAction();
@@ -26,6 +25,11 @@ const { data, error, refresh } = useAsyncData(
 );
 const decision = shallowRef<Proposal>();
 const proposal = computed(() => decision.value ?? data.value);
+const targets = computed(() =>
+  Object.entries(proposal.value?.target ?? {}).filter(
+    ([key, value]) => key.endsWith('Id') && typeof value === 'string',
+  ),
+);
 const invalid = computed(() =>
   [
     'AGENT_PROPOSAL_EXPIRED',
@@ -79,14 +83,33 @@ async function retry() {
       :title="$t('La propuesta ya no se puede decidir')"
       :description="failure?.message"
     />
-    <AssistantProposalCard
-      v-if="proposal"
-      :proposal="proposal"
-      :project-id="projectId"
-      :busy="isRunning"
-      :can-decide="can('ai.use') && !invalid"
-      @decide="decide"
-    />
+    <template v-if="proposal">
+      <AssistantProposalCard
+        :proposal="proposal"
+        :project-id="projectId"
+        :busy="isRunning"
+        :can-decide="can('ai.use') && !invalid"
+        external
+        @decide="decide"
+      />
+      <details v-if="targets.length" class="mt-3 text-sm">
+        <summary class="cursor-pointer">
+          {{ $t('Entidades afectadas') }}
+        </summary>
+        <dl class="mt-2 space-y-1">
+          <div
+            v-for="[field, id] in targets"
+            :key="field"
+            class="flex flex-wrap gap-2"
+          >
+            <dt class="text-muted">{{ field }}</dt>
+            <dd>
+              <code>{{ id }}</code>
+            </dd>
+          </div>
+        </dl>
+      </details>
+    </template>
     <USkeleton v-else-if="!loadError" class="h-20" />
   </WorkspacePage>
 </template>

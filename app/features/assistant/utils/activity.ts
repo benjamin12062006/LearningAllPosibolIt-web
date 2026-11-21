@@ -23,6 +23,32 @@ const operationLabels: Record<string, string> = {
   suggest_view: 'Preparar una vista de la hoja',
   propose_catalog_from_sheet: 'Preparar una importación desde la hoja',
   search_knowledge: 'Buscar en el conocimiento del proyecto',
+  list_workbooks: 'Listar libros',
+  list_sheet_history: 'Consultar el historial de la hoja',
+  open_changeset: 'Abrir un borrador',
+  compare_revisions: 'Comparar revisiones',
+  find_duplicates: 'Buscar filas repetidas',
+  prepare_sheet_edits: 'Preparar cambios en la hoja',
+  apply_changeset: 'Preparar aplicar un borrador',
+  cancel_changeset: 'Preparar cancelar un borrador',
+  submit_changeset: 'Preparar enviar un borrador a revisión',
+  reopen_changeset: 'Preparar reabrir un borrador',
+  reject_changeset: 'Preparar rechazar un borrador',
+  rebase_changeset: 'Preparar poner al día un borrador',
+  propose_revert: 'Preparar deshacer una revisión',
+  duplicate_worksheet: 'Preparar duplicar una hoja',
+  open_catalog_as_worksheet: 'Preparar abrir el catálogo como hoja',
+  export_worksheet: 'Preparar exportar la hoja',
+  list_saved_views: 'Listar vistas guardadas',
+  update_saved_view: 'Preparar cambiar una vista',
+  list_import_mappings: 'Listar plantillas de mapeo',
+  create_import_mapping: 'Preparar una plantilla de mapeo',
+  delete_import_mapping: 'Preparar borrar una plantilla de mapeo',
+  list_catalog_imports: 'Listar importaciones del catálogo',
+  delete_catalog_import: 'Preparar borrar una importación',
+  set_feed_source: 'Preparar la fuente del feed',
+  set_feed_schedule: 'Preparar el horario del feed',
+  approve_feed_policy: 'Preparar la política del feed',
 };
 
 interface Activity {
@@ -70,6 +96,13 @@ export function operationDestination(
     };
 
   switch (operation) {
+    case 'list_catalog_imports':
+    case 'delete_catalog_import':
+      return { path: project, hash: '#importaciones' };
+    case 'set_feed_source':
+    case 'set_feed_schedule':
+    case 'approve_feed_policy':
+      return { path: `${project}/feed` };
     case 'get_catalog_snapshot':
       return {
         path: project,
@@ -117,6 +150,7 @@ export function operationDestination(
       return { path: `${project}/products` };
     case 'list_worksheets':
     case 'propose_sheet_layout':
+    case 'open_catalog_as_worksheet':
       return {
         path: `${project}/workbooks`,
         hash:

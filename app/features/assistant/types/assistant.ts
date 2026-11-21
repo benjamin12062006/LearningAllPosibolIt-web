@@ -65,10 +65,18 @@ export interface Proposal {
   summary: string;
   rulesetReview?: unknown;
   hash: string;
-  status: 'ready' | 'confirming' | 'confirmed' | 'rejected';
+  /** `failed`: confirmarla falló con un error conocido y el asistente siguió. */
+  status: 'ready' | 'confirming' | 'confirmed' | 'rejected' | 'failed';
   target: unknown;
   result: unknown;
+  error?: PublicError | null;
   expiresAt: string;
+}
+
+/** Lo que responde confirmar: la propuesta y la ejecución que continúa. */
+export interface ProposalDecision {
+  proposal: Proposal;
+  continuation: AssistantRun | null;
 }
 
 export interface AssistantRun {
@@ -113,9 +121,12 @@ export function isProposal(value: unknown): value is Proposal {
     isNonEmptyString(value.operation) &&
     typeof value.summary === 'string' &&
     isNonEmptyString(value.hash) &&
-    ['ready', 'confirming', 'confirmed', 'rejected'].some(
+    ['ready', 'confirming', 'confirmed', 'rejected', 'failed'].some(
       (status) => status === value.status,
     ) &&
+    (value.error === undefined ||
+      value.error === null ||
+      isPublicError(value.error)) &&
     isDateString(value.expiresAt)
   );
 }
