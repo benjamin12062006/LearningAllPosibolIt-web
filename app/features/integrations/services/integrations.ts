@@ -1,3 +1,4 @@
+import { parseCliSkill } from '../utils/skill';
 import {
   scopePath,
   type ProjectScope,
@@ -15,7 +16,7 @@ import {
 } from '../../../utils/guards';
 import { invalidResponse, type ApiClient } from '../../../services/api-client';
 
-export type CredentialAudience = 'mcp' | 'mcp_oauth' | 'cli';
+export type CredentialAudience = 'mcp' | 'mcp_oauth' | 'cli' | 'cli_oauth';
 export type CredentialCapability = 'read' | 'prepare';
 export interface Credential {
   id: string;
@@ -46,6 +47,13 @@ export interface KnowledgeStatus {
 
 export function createIntegrationsService(api: ApiClient) {
   return {
+    async cliSkill(scope: ProjectScope) {
+      const received = parseCliSkill(
+        await api.request(`${integrationPath(scope)}/cli-skill`),
+      );
+      if (!received) throw invalidResponse();
+      return received;
+    },
     async credentials(scope: ProjectScope, cursor?: string) {
       const query = { limit: 20, ...(cursor ? { cursor } : {}) };
       const response = await api.request(
@@ -59,7 +67,11 @@ export function createIntegrationsService(api: ApiClient) {
         !isNullableString(response.oauthResourceUrl)
       )
         throw invalidResponse();
-      return { ...list, oauthResourceUrl: response.oauthResourceUrl };
+      return {
+        ...list,
+        oauthResourceUrl: response.oauthResourceUrl,
+        cliOAuthAvailable: response.cliOAuthAvailable === true,
+      };
     },
     async issue(scope: ProjectScope, input: CredentialInput, key: string) {
       const response = await api.request(
@@ -76,7 +88,7 @@ export function createIntegrationsService(api: ApiClient) {
         response.credential.audience !== input.audience
       )
         throw invalidResponse();
-      if (input.audience === 'mcp_oauth')
+      if (input.audience === 'mcp_oauth' || input.audience === 'cli_oauth')
         return { credential: response.credential, token: null };
       if (!isNonEmptyString(response.token)) throw invalidResponse();
       return { credential: response.credential, token: response.token };
@@ -142,7 +154,9 @@ function isCredential(value: unknown): value is Credential {
     isNonEmptyString(value.id) &&
     isNonEmptyString(value.ownerId) &&
     typeof value.label === 'string' &&
-    ['mcp', 'mcp_oauth', 'cli'].some((item) => item === value.audience) &&
+    ['mcp', 'mcp_oauth', 'cli', 'cli_oauth'].some(
+      (item) => item === value.audience,
+    ) &&
     Array.isArray(value.capabilities) &&
     value.capabilities.every((item) => item === 'read' || item === 'prepare') &&
     ['active', 'expired', 'revoked'].some((item) => item === value.status) &&

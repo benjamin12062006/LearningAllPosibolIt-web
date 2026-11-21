@@ -6,6 +6,16 @@ export function proposalLink(projectId: string, proposal: Proposal) {
   const target = worksheetTarget(proposal.target);
   const result = isRecord(proposal.result) ? proposal.result : {};
   const project = `/projects/${encodeURIComponent(projectId)}`;
+  // Lo borrado ya no se puede abrir: se lleva a la lista.
+  if (result.deleted === true && typeof result.snapshotId === 'string') {
+    return {
+      label: 'Abrir importaciones del catálogo',
+      to: { path: project, hash: '#importaciones' },
+    };
+  }
+  if (typeof result.feedId === 'string') {
+    return { label: 'Abrir feed', to: { path: `${project}/feed` } };
+  }
   if (typeof result.snapshotId === 'string') {
     return {
       label: 'Abrir importación del catálogo',

@@ -26,6 +26,7 @@ const tab = ref<'mcp' | 'cli'>('mcp');
 const items = shallowRef<Credential[]>([]);
 const nextCursor = ref<string | null>(null);
 const oauthResourceUrl = ref<string | null>(null);
+const cliOAuthAvailable = ref(false);
 const loading = ref(true);
 const error = ref('');
 const issued = shallowRef<{ label: string; token: string } | null>(null);
@@ -38,9 +39,10 @@ const userId = computed(() =>
   state.value.status === 'ready' ? state.value.user.id : null,
 );
 const visibleItems = computed(() =>
-  items.value.filter((item) =>
-    tab.value === 'cli' ? item.audience === 'cli' : item.audience !== 'cli',
-  ),
+  items.value.filter((item) => {
+    const cliAccess = item.audience === 'cli' || item.audience === 'cli_oauth';
+    return tab.value === 'cli' ? cliAccess : !cliAccess;
+  }),
 );
 let generation = 0;
 
@@ -66,12 +68,21 @@ const audienceLabels: Record<CredentialAudience, string> = {
   mcp: 'MCP local',
   mcp_oauth: 'MCP remoto (OAuth)',
   cli: 'CLI',
+  cli_oauth: 'CLI (OAuth)',
 };
 const statusLabels: Record<Credential['status'], string> = {
   active: 'Activo',
   expired: 'Vencido',
   revoked: 'Revocado',
 };
+const createTitle = computed(() => {
+  if (createAudience.value === 'cli_oauth') return 'Autorizar CLI con OAuth';
+  if (createAudience.value === 'mcp_oauth')
+    return 'Autorizar cuenta para OAuth';
+  if (createAudience.value === 'mcp') return 'Emitir credencial para MCP';
+  if (createAudience.value === 'cli') return 'Emitir credencial para CLI';
+  return 'Autorizar acceso';
+});
 
 onMounted(() => void load());
 onScopeDispose(() => {
@@ -84,6 +95,7 @@ watch([userId, () => props.archived], () => {
   revoking.value = null;
   items.value = [];
   oauthResourceUrl.value = null;
+  cliOAuthAvailable.value = false;
   if (userId.value) void load();
   else generation += 1;
 });
@@ -102,6 +114,7 @@ async function load(continuation = false) {
     items.value = continuation ? [...items.value, ...page.items] : page.items;
     nextCursor.value = page.nextCursor;
     oauthResourceUrl.value = page.oauthResourceUrl;
+    cliOAuthAvailable.value = page.cliOAuthAvailable;
   } catch (cause) {
     if (request === generation)
       error.value =
@@ -170,7 +183,15 @@ async function issue() {
   if (result.token && stillOpen)
     issued.value = { label: result.credential.label, token: result.token };
   else if (!result.token)
-    toast.add({ title: t('Cuenta autorizada para OAuth'), color: 'success' });
+    toast.add({
+      title: t('Cuenta autorizada para OAuth'),
+      description: t(
+        audience === 'cli_oauth'
+          ? 'Continúa con auth login siguiendo la skill.'
+          : 'Completa el inicio de sesión de Descope en tu cliente MCP.',
+      ),
+      color: 'success',
+    });
   await load();
 }
 
@@ -223,11 +244,12 @@ function showDate(value: string) {
     v-model:tab="tab"
     :project-id="scope.projectId"
     :oauth-resource-url="oauthResourceUrl"
+    :cli-o-auth-available="cliOAuthAvailable"
     :local="local"
   >
-    <template #mcp="{ mode, canConfigure }">
+    <template #mcp="{ mode, canIssueCredential }">
       <UButton
-        v-if="!archived && canConfigure && userId"
+        v-if="!archived && canIssueCredential && userId"
         :disabled="loading || !!error"
         @click="startCreate(mode === 'local' ? 'mcp' : 'mcp_oauth')"
       >
@@ -238,13 +260,19 @@ function showDate(value: string) {
         }}
       </UButton>
     </template>
-    <template #cli>
+    <template #cli="{ method }">
       <UButton
         v-if="!archived && userId"
         :disabled="loading || !!error"
-        @click="startCreate('cli')"
-        >{{ $t('Emitir credencial para CLI') }}</UButton
+        @click="startCreate(method === 'oauth' ? 'cli_oauth' : 'cli')"
       >
+        {{
+          method === 'oauth'
+            ? $t('Autorizar CLI con OAuth')
+            : $t('Emitir credencial para CLI')
+        }}
+      </UButton>
+      <IntegrationsCliSkill :scope="scope" :project-name="projectName" />
     </template>
   </IntegrationsSetupGuide>
   <section class="mt-8 space-y-3">
@@ -267,10 +295,10 @@ function showDate(value: string) {
             {{ audienceLabels[item.audience] }} ·
             {{
               item.capabilities.includes('prepare')
-                ? 'Lectura y propuestas'
-                : 'Solo lectura'
+                ? $t('Lectura y propuestas')
+                : $t('Solo lectura')
             }}
-            · {{ statusLabels[item.status] }}
+            · {{ $t(statusLabels[item.status]) }}
           </p>
           <p class="text-xs text-muted">
             {{ $t('Vence') }} {{ showDate(item.expiresAt)
@@ -300,14 +328,7 @@ function showDate(value: string) {
     >
   </section>
 
-  <UiDialog
-    v-model:open="createOpen"
-    :title="
-      createAudience
-        ? `Autorizar ${audienceLabels[createAudience]}`
-        : 'Autorizar acceso'
-    "
-  >
+  <UiDialog v-model:open="createOpen" :title="$t(createTitle)">
     <form id="issue-access" class="space-y-4" @submit.prevent="issue">
       <p class="text-sm text-muted">
         {{ $t('Proyecto') }} {{ projectName
@@ -334,7 +355,11 @@ function showDate(value: string) {
         type="submit"
         :disabled="!label.trim()"
         :loading="isRunning"
-        >{{ $t('Autorizar') }}</UButton
+        >{{
+          createAudience === 'cli_oauth' || createAudience === 'mcp_oauth'
+            ? $t('Autorizar cuenta para OAuth')
+            : $t('Emitir credencial')
+        }}</UButton
       >
     </template>
   </UiDialog>

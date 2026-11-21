@@ -113,6 +113,7 @@ function onDeliveryChanged(updated: Feed, deliveryUrl: string | null) {
         :feed-id="feed.id"
       />
       <FeedDelivery
+        id="feed-delivery"
         :project-id="projectId"
         :feed="feed"
         @changed="onDeliveryChanged"

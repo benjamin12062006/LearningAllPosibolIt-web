@@ -319,9 +319,24 @@ export function createAssistantChat(
       $assistant.decide(scope, run.id, proposal, decision),
     );
     if (!decided || disposed || thread.run?.id !== run.id) return;
-    thread.run = { ...thread.run, proposal: decided };
+    thread.run = { ...thread.run, proposal: decided.proposal };
     thread.live = EMPTY_LIVE_RUN;
-    return selected.value === thread ? decided : undefined;
+    if (decided.continuation) await continueWith(thread, decided.continuation);
+    return selected.value === thread ? decided.proposal : undefined;
+  }
+
+  /**
+   * Tras confirmar, el asistente sigue solo en otra ejecución: se muestra el
+   * mensaje «Confirmé: …» que guardó el servidor y se sigue en vivo.
+   */
+  async function continueWith(thread: Thread, continuation: AssistantRun) {
+    await readMessages(false, thread);
+    if (disposed) return;
+    stopFollowing(thread);
+    thread.run = continuation;
+    thread.live = EMPTY_LIVE_RUN;
+    thread.reportNewEvents = true;
+    void followThread(thread);
   }
 
   async function handleRequest<T>(

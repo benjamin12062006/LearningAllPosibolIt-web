@@ -110,3 +110,107 @@ it('formatea títulos y tablas y conserva el HTML de la respuesta como texto', (
   expect(answer).toContain('&lt;details&gt;');
   expect(answer).toContain('<a href="/chats">este enlace</a>');
 });
+
+it('al confirmar, muestra «Confirmé: …» y sigue en vivo la ejecución que continúa', async () => {
+  const api = createAssistantService(fakeApi(null).api, '');
+  const proposal = {
+    id: 'proposal-1',
+    operation: 'create_change_proposal',
+    summary: 'Crear un borrador con 2 cambios.',
+    hash: 'a'.repeat(64),
+    status: 'ready' as const,
+    target: null,
+    result: null,
+    expiresAt: '2099-01-01T00:00:00.000Z',
+  };
+  const runs = new Map<string, AssistantRun>([
+    [
+      'run-1',
+      {
+        id: 'run-1',
+        conversationId: 'c-1',
+        userMessageId: 'm-1',
+        status: 'succeeded',
+        outcome: 'confirmation_required',
+        answer: proposal.summary,
+        error: null,
+        proposal,
+      },
+    ],
+  ]);
+  const followed: string[] = [];
+  let messages = [
+    {
+      id: 'm-1',
+      content: 'Sube los precios',
+      sequence: 1,
+      role: 'user' as const,
+    },
+    {
+      id: 'a-1',
+      content: proposal.summary,
+      sequence: 2,
+      role: 'assistant' as const,
+    },
+  ];
+  const service: typeof api = {
+    ...api,
+    conversations: async () => ({
+      items: [
+        { id: 'c-1', workbookId: null, worksheetId: null, title: 'Precios' },
+      ],
+      nextCursor: null,
+    }),
+    messages: async () => ({ items: messages, nextCursor: null }),
+    latest: async () => runs.get('run-1') ?? null,
+    events: async (_scope, runId) => {
+      followed.push(runId);
+    },
+    read: async (_scope, id) => {
+      const run = runs.get(id);
+      if (!run) throw new Error('ejecución ausente');
+      return { ...run, status: 'succeeded', outcome: 'answered' };
+    },
+    decide: async () => {
+      const continuation: AssistantRun = {
+        id: 'run-2',
+        conversationId: 'c-1',
+        userMessageId: 'm-3',
+        status: 'queued',
+        outcome: null,
+        answer: null,
+        error: null,
+        proposal: null,
+      };
+      runs.set('run-2', continuation);
+      messages = [
+        ...messages,
+        {
+          id: 'm-3',
+          content: `Confirmé: ${proposal.summary}`,
+          sequence: 3,
+          role: 'user',
+        },
+      ];
+      return {
+        proposal: { ...proposal, status: 'confirmed' },
+        continuation,
+      };
+    },
+  };
+  const session = createAssistantChat(service, {
+    organizationId: 'org',
+    projectId: 'project',
+  });
+  await session.initialize();
+
+  const decided = await session.decide(proposal, 'confirm');
+
+  expect(decided?.status).toBe('confirmed');
+  expect(session.messages.value.at(-1)?.content).toBe(
+    'Confirmé: Crear un borrador con 2 cambios.',
+  );
+  expect(session.activeRun.value?.id).toBe('run-2');
+  await vi.waitFor(() => expect(followed).toContain('run-2'));
+  session.dispose();
+});

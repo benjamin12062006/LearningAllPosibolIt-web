@@ -20,6 +20,14 @@ interface Instructions {
   filename?: string;
 }
 
+type McpSetupState =
+  | { status: 'ready'; instructions: Instructions }
+  | { status: 'local-api-required'; instructions: Instructions }
+  | {
+      status: 'local-client-unsupported' | 'remote-resource-required';
+      instructions: null;
+    };
+
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 const LOCAL_ADAPTER = {
   command: '<RUTA_ABSOLUTA_DEL_SERVICIO_AI>/.venv/bin/ktsu-mcp',
@@ -72,19 +80,41 @@ export function mcpSetup(input: PublicSetup): Instructions | null {
   }
 }
 
-export function cliSetup(apiUrl: string) {
-  const api = publicUrl(apiUrl, true);
-  const root = api ? new URL(api).origin : '<ORIGEN_API_KTSU>';
-  return [
-    'npm install -g ./packages/ktsu-cli',
-    `ktsu config set --api-url '${root}'`,
-    'ktsu auth status',
-    'ktsu operations list',
-    'ktsu read get_project_overview',
-  ].join('\n');
+export function resolveMcpSetup(
+  input: PublicSetup,
+  canUseLocalApi: boolean,
+): McpSetupState {
+  const instructions = mcpSetup(input);
+  if (input.mode === 'remote' && !instructions) {
+    return { status: 'remote-resource-required', instructions: null };
+  }
+  if (!instructions) {
+    return { status: 'local-client-unsupported', instructions: null };
+  }
+  if (input.mode === 'local' && !canUseLocalApi) {
+    return { status: 'local-api-required', instructions };
+  }
+  return { status: 'ready', instructions };
 }
 
-export function setupPrompt(input: PublicSetup) {
+export function cliProjectContext(
+  apiUrl: string,
+  webOrigin: string,
+  scope: { organizationId: string; projectId: string },
+  projectName: string,
+) {
+  const api = publicUrl(apiUrl, true);
+  const web = publicUrl(webOrigin, true);
+  return {
+    ...(api && { apiUrl: new URL(api).origin }),
+    ...(web && { webUrl: new URL(web).origin }),
+    organizationId: scope.organizationId,
+    projectId: scope.projectId,
+    projectName,
+  };
+}
+
+export function setupPrompt(input: PublicSetup, canUseLocalApi = true) {
   const client = MCP_CLIENTS.find((item) => item.value === input.client)?.label;
   const origin = publicUrl(input.webOrigin, true);
   const validProject = /^[a-z0-9-]+$/i.test(input.projectId);
@@ -92,16 +122,23 @@ export function setupPrompt(input: PublicSetup) {
     origin && validProject
       ? new URL(`/projects/${input.projectId}/integrations`, origin).href
       : '<URL_DE_INTEGRACIONES>';
-  const config = mcpSetup(input);
-  const mcp = config
-    ? `Revisa las instrucciones de ${client} y el transporte ${input.mode === 'local' ? 'local stdio' : 'remoto HTTPS'} antes de configurar MCP.`
-    : `Para ${client}, el transporte seleccionado está pendiente. Comprueba otras opciones en la página.`;
+  const { status } = resolveMcpSetup(input, canUseLocalApi);
+  const transport = input.mode === 'local' ? 'Local (stdio)' : 'Remoto (OAuth)';
+  const nextStep = {
+    ready: `Sigue las instrucciones de ${client} para ${transport}.`,
+    'local-api-required':
+      'La vía seleccionada es Local (stdio). Abre KTSU con la API Nest local para emitir la credencial de ese entorno.',
+    'local-client-unsupported':
+      'El cliente seleccionado requiere OAuth remoto. Revisa la disponibilidad de OAuth en Integraciones.',
+    'remote-resource-required':
+      'La vía seleccionada es Remoto (OAuth). Falta habilitar el endpoint MCP para este proyecto en KTSU.',
+  }[status];
   return [
     'Quiero conectar mi proyecto KTSU con el cliente que estoy usando.',
     `Abre Integraciones en ${address} si tienes navegador. Si no, usa las instrucciones que te comparta desde la pantalla.`,
     'Identifica el cliente y confirma conmigo la organización y el proyecto. Conserva las entradas existentes de configuración.',
-    mcp,
-    'Comprueba por separado la CLI de KTSU. Si tienes acceso a su paquete privado, usa la configuración y los comandos de lectura de la pantalla.',
+    nextStep,
+    'Comprueba por separado la CLI de KTSU. Está dentro de la skill ktsu-cli: en Integraciones → CLI, usa «Copiar skill completa», reconstrúyela y ejecuta sus comandos con pnpm run ktsu.',
     'Indícame dónde autorizar la cuenta o configurar las variables requeridas. Mantén los valores secretos fuera del chat y de archivos compartidos.',
     'Para verificar, descubre las herramientas MCP y realiza una lectura del proyecto. Para la CLI, comprueba la sesión, lista las operaciones y prueba la lectura get_project_overview.',
     'Indica qué conexión quedó verificada y qué autorización o prueba sigue pendiente.',
@@ -112,12 +149,12 @@ function remoteSetup(client: McpClient, url: string): Instructions {
   switch (client) {
     case 'codex':
       return {
-        text: `[mcp_servers.ktsu]\nurl = ${JSON.stringify(url)}`,
-        filename: 'ktsu-mcp.toml',
+        text: `[mcp_servers.ktsu-remoto]\nurl = ${JSON.stringify(url)}`,
+        filename: 'ktsu-mcp-remoto.toml',
       };
     case 'claude-code':
       return {
-        text: `claude mcp add --transport http ktsu ${shellArgument(url)}`,
+        text: `claude mcp add --transport http ktsu-remoto ${shellArgument(url)}`,
       };
     case 'claude-desktop':
     case 'claude-web':
