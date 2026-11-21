@@ -1,4 +1,4 @@
-import { parseCliSkill } from '../utils/skill';
+import { parseSkill, type SkillName } from '../utils/skill';
 import {
   scopePath,
   type ProjectScope,
@@ -47,9 +47,11 @@ export interface KnowledgeStatus {
 
 export function createIntegrationsService(api: ApiClient) {
   return {
-    async cliSkill(scope: ProjectScope) {
-      const received = parseCliSkill(
-        await api.request(`${integrationPath(scope)}/cli-skill`),
+    async skill(scope: ProjectScope, name: SkillName) {
+      const route = name === 'ktsu-cli' ? 'cli-skill' : 'mcp-skill';
+      const received = parseSkill(
+        await api.request(`${integrationPath(scope)}/${route}`),
+        name,
       );
       if (!received) throw invalidResponse();
       return received;

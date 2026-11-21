@@ -3,53 +3,64 @@ import { createIntegrationsService } from '../../../app/features/integrations/se
 import type { Proposal } from '../../../app/features/assistant/types/assistant';
 import {
   cliProjectContext,
+  MCP_CLIENTS,
+  mcpProjectContext,
   mcpSetup,
-  resolveMcpSetup,
-  setupPrompt,
 } from '../../../app/features/integrations/utils/setup';
 import {
-  parseCliSkill,
+  parseSkill,
   skillClipboard,
   skillTree,
 } from '../../../app/features/integrations/utils/skill';
 import { fakeApi } from '../support/fake-api';
 
 const project = { organizationId: 'organization', projectId: 'the-project' };
-const publicSetup = {
+const remote = {
   client: 'codex' as const,
-  mode: 'remote' as const,
   oauthResourceUrl: 'https://mcp.example/mcp',
-  webOrigin: 'https://ktsu.example',
-  projectId: project.projectId,
 };
 
+function pasted(clipboard: string) {
+  return JSON.parse(clipboard.slice(clipboard.indexOf('\n\n') + 2));
+}
+
 describe('configuración pública de las integraciones', () => {
-  it('ofrece una plantilla válida para Codex y mantiene fuera de la configuración los secretos', () => {
+  it('ofrece solo el MCP remoto y mantiene fuera de la configuración los secretos', () => {
     const marker = 'SECRET_MARKER_DO_NOT_SHARE';
-    const response = { ...publicSetup, issuedToken: marker };
-    expect(mcpSetup(response)).toEqual({
-      filename: 'ktsu-mcp-remoto.toml',
+    expect(mcpSetup(remote)).toEqual({
       text: '[mcp_servers.ktsu-remoto]\nurl = "https://mcp.example/mcp"',
+      login:
+        'Añade el bloque a ~/.codex/config.toml y ejecuta codex mcp login ktsu-remoto.',
     });
-    expect(setupPrompt(response)).toContain(
-      '/projects/the-project/integrations',
+    for (const { value } of MCP_CLIENTS) {
+      const instructions = mcpSetup({ ...remote, client: value });
+      expect(instructions?.text).toContain('https://mcp.example/mcp');
+      expect(JSON.stringify(instructions)).not.toMatch(
+        /stdio|KTSU_MCP_|\.venv/u,
+      );
+    }
+    expect(mcpSetup({ ...remote, oauthResourceUrl: null })).toBeNull();
+    expect(
+      mcpSetup({
+        ...remote,
+        oauthResourceUrl: `https://mcp.example/mcp?token=${marker}`,
+      }),
+    ).toBeNull();
+    const context = mcpProjectContext(
+      {
+        ...remote,
+        oauthResourceUrl: `https://mcp.example/mcp?token=${marker}`,
+      },
+      `https://ktsu.example/?session=${marker}`,
+      project,
+      'Proyecto',
     );
     expect(
-      JSON.stringify(mcpSetup(response)) + setupPrompt(response),
-    ).not.toContain(marker);
-
-    const invalid = {
-      ...response,
-      webOrigin: `https://ktsu.example/?session=${marker}`,
-      oauthResourceUrl: `https://mcp.example/mcp?token=${marker}`,
-    };
-    expect(mcpSetup(invalid)).toBeNull();
-    expect(
-      setupPrompt(invalid) +
+      JSON.stringify(context) +
         JSON.stringify(
           cliProjectContext(
-            invalid.webOrigin,
-            invalid.webOrigin,
+            `https://ktsu.example/?session=${marker}`,
+            `https://ktsu.example/?session=${marker}`,
             project,
             'Proyecto',
           ),
@@ -57,7 +68,42 @@ describe('configuración pública de las integraciones', () => {
     ).not.toContain(marker);
   });
 
-  it('reconstruye la skill completa, conservando rutas y saltos de línea', async () => {
+  it('copia la skill del MCP con la configuración del cliente elegido', async () => {
+    const document = {
+      name: 'ktsu-mcp',
+      files: [
+        { path: 'SKILL.md', content: '# MCP\n' },
+        { path: 'references/conexion.md', content: 'Conexión\n' },
+      ],
+    };
+    const skill = await createIntegrationsService(fakeApi(document).api).skill(
+      project,
+      'ktsu-mcp',
+    );
+    const context = mcpProjectContext(
+      { ...remote, client: 'claude-code' },
+      'https://ktsu.example',
+      project,
+      'Prueba',
+    );
+    expect(context).toMatchObject({
+      mcpUrl: 'https://mcp.example/mcp',
+      serverName: 'ktsu-remoto',
+      client: 'Claude Code',
+      configuration:
+        "claude mcp add --transport http ktsu-remoto 'https://mcp.example/mcp'",
+      webUrl: 'https://ktsu.example',
+      projectName: 'Prueba',
+    });
+    const clipboard = skillClipboard(skill, context);
+    expect(pasted(clipboard)).toMatchObject({ ...document, context });
+    expect(clipboard).toContain('Si no existe, créala. Si existe, actualízala');
+    expect(clipboard).toContain('context.configuration');
+    expect(clipboard).not.toContain('pnpm run ktsu');
+    expect(parseSkill(document, 'ktsu-cli')).toBeNull();
+  });
+
+  it('reconstruye la skill de la CLI, conservando rutas y saltos de línea', async () => {
     const document = {
       name: 'ktsu-cli',
       files: [
@@ -69,60 +115,32 @@ describe('configuración pública de las integraciones', () => {
         { path: 'references/feed.md', content: 'Feed\n' },
       ],
     };
-    const skill = await createIntegrationsService(
-      fakeApi(document).api,
-    ).cliSkill(project);
+    const fake = fakeApi(document);
+    const skill = await createIntegrationsService(fake.api).skill(
+      project,
+      'ktsu-cli',
+    );
+    expect(fake.request).toHaveBeenCalledWith(
+      '/organizations/organization/projects/the-project/integrations/cli-skill',
+    );
     expect(skillTree(skill)[0]?.children?.map((item) => item.label)).toEqual([
       'SKILL.md',
       'scripts',
       'references',
     ]);
     const clipboard = skillClipboard(skill, { projectId: 'a-project' });
-    expect(
-      JSON.parse(clipboard.slice(clipboard.indexOf('\n\n') + 2)),
-    ).toMatchObject(document);
+    expect(pasted(clipboard)).toMatchObject(document);
     expect(clipboard).toContain('~/.claude/skills/ktsu-cli');
     expect(clipboard).toContain('pnpm run ktsu --help');
     expect(
-      parseCliSkill({
-        ...document,
-        files: [...document.files, { path: '../.env', content: 'secret' }],
-      }),
-    ).toBeNull();
-  });
-
-  it('deja ChatGPT pendiente para stdio y anuncia Descope para un endpoint remoto', () => {
-    expect(
-      mcpSetup({ ...publicSetup, client: 'chatgpt', mode: 'local' }),
-    ).toBeNull();
-    expect(mcpSetup({ ...publicSetup, client: 'chatgpt' })?.text).toContain(
-      'Descope',
-    );
-  });
-
-  it('mantiene visible la guía stdio con una API alojada y explica dónde emitir la credencial', () => {
-    const setup = { ...publicSetup, mode: 'local' as const };
-    expect(resolveMcpSetup(setup, false)).toMatchObject({
-      status: 'local-api-required',
-      instructions: { filename: 'ktsu-mcp.toml' },
-    });
-    expect(resolveMcpSetup(setup, true).status).toBe('ready');
-    expect(setupPrompt(setup, false)).toContain(
-      'Abre KTSU con la API Nest local',
-    );
-  });
-
-  it('distingue un cliente sin stdio de un proyecto sin OAuth', () => {
-    expect(
-      resolveMcpSetup(
-        { ...publicSetup, client: 'chatgpt', mode: 'local' },
-        true,
+      parseSkill(
+        {
+          ...document,
+          files: [...document.files, { path: '../.env', content: 'secret' }],
+        },
+        'ktsu-cli',
       ),
-    ).toEqual({ status: 'local-client-unsupported', instructions: null });
-    expect(
-      resolveMcpSetup({ ...publicSetup, oauthResourceUrl: null }, false),
-    ).toEqual({ status: 'remote-resource-required', instructions: null });
-    expect(resolveMcpSetup(publicSetup, false).status).toBe('ready');
+    ).toBeNull();
   });
 
   it('usa la credencial únicamente en la devolución del alta y confirma el hash visible', async () => {

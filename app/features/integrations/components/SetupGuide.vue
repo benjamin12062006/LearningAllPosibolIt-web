@@ -1,42 +1,34 @@
 <script setup lang="ts">
+import type { ProjectScope } from '../../projects/types/project-scope';
 import {
+  cliProjectContext,
   MCP_CLIENTS,
-  resolveMcpSetup,
-  setupPrompt,
+  mcpProjectContext,
+  mcpSetup,
   type McpClient,
-  type McpMode,
 } from '../utils/setup';
-import { saveBlob } from '../../../utils/download';
 
 const props = defineProps<{
-  projectId: string;
+  scope: ProjectScope;
+  projectName: string;
   oauthResourceUrl: string | null;
-  local: boolean;
   cliOAuthAvailable?: boolean;
 }>();
 const tab = defineModel<'mcp' | 'cli'>('tab', { required: true });
-const selectedMode = ref<McpMode | null>(null);
-const mode = computed({
-  get: () =>
-    selectedMode.value ??
-    (props.oauthResourceUrl || !props.local ? 'remote' : 'local'),
-  set: (value: McpMode) => {
-    selectedMode.value = value;
-  },
-});
-const client = ref<McpClient>('codex');
+const { t } = useAppLocale();
 const webOrigin = useRequestURL().origin;
-const setup = computed(() => ({
+const { apiBaseUrl } = useRuntimeConfig().public;
+
+const client = ref<McpClient>('codex');
+const mcpInput = computed(() => ({
   client: client.value,
-  mode: mode.value,
   oauthResourceUrl: props.oauthResourceUrl,
-  webOrigin,
-  projectId: props.projectId,
 }));
-const resolved = computed(() => resolveMcpSetup(setup.value, props.local));
-const instructions = computed(() => resolved.value.instructions);
-const canIssueCredential = computed(() => resolved.value.status === 'ready');
-const prompt = computed(() => setupPrompt(setup.value, props.local));
+const instructions = computed(() => mcpSetup(mcpInput.value));
+const mcpContext = computed(() =>
+  mcpProjectContext(mcpInput.value, webOrigin, props.scope, props.projectName),
+);
+
 const preferredCliMethod = ref<'oauth' | 'token'>('oauth');
 const cliMethod = computed(() =>
   props.cliOAuthAvailable ? preferredCliMethod.value : 'token',
@@ -45,43 +37,25 @@ const cliMethods = computed(() => [
   { label: t('Cuenta Descope (OAuth)'), value: 'oauth' },
   { label: t('Credencial de proyecto'), value: 'token' },
 ]);
-const { t } = useAppLocale();
-const tabs = [
+const cliContext = computed(() =>
+  cliProjectContext(apiBaseUrl, webOrigin, props.scope, props.projectName),
+);
+
+const tabItems = [
   { value: 'mcp', label: 'MCP' },
   { value: 'cli', label: 'CLI' },
-] as const;
-const tabItems = [...tabs];
-
-function download() {
-  const configuration = instructions.value;
-  if (!configuration?.filename) return;
-  saveBlob(
-    new Blob([configuration.text], { type: 'text/plain;charset=utf-8' }),
-    configuration.filename,
-  );
-}
+];
 </script>
 
 <template>
   <UiTabs v-model="tab" :items="tabItems" :label="$t('Tipo de integración')">
     <template #mcp>
       <section class="space-y-4">
-        <div class="flex flex-wrap items-end gap-3">
-          <UFormField :label="$t('Cliente')">
-            <USelect v-model="client" :items="[...MCP_CLIENTS]" />
-          </UFormField>
-          <UFormField :label="$t('Transporte')">
-            <USelect
-              v-model="mode"
-              :items="[
-                { value: 'local', label: 'Local (stdio)' },
-                { value: 'remote', label: 'Remoto (OAuth)' },
-              ]"
-            />
-          </UFormField>
-        </div>
+        <UFormField :label="$t('Cliente')">
+          <USelect v-model="client" :items="[...MCP_CLIENTS]" />
+        </UFormField>
         <UAlert
-          v-if="resolved.status === 'remote-resource-required'"
+          v-if="!instructions"
           color="neutral"
           variant="soft"
           :title="
@@ -93,42 +67,13 @@ function download() {
             )
           "
         />
-        <UAlert
-          v-if="resolved.status === 'local-api-required'"
-          color="neutral"
-          variant="soft"
-          :title="$t('Emite la credencial en tu entorno local.')"
-          :description="
-            $t(
-              'Arranca Nest en tu equipo y abre KTSU conectado a esa API. Emite allí la credencial del proyecto local.',
-            )
-          "
-        />
-        <template v-if="resolved.status === 'local-client-unsupported'">
-          <UAlert
-            color="neutral"
-            variant="soft"
-            :title="$t('Este cliente usa OAuth remoto.')"
-          />
-          <UButton color="neutral" variant="outline" @click="mode = 'remote'">
-            {{ $t('Ver OAuth remoto') }}
-          </UButton>
-        </template>
-        <slot
-          name="mcp"
-          :mode="mode"
-          :can-issue-credential="canIssueCredential"
-        />
+        <slot name="mcp" :can-issue-credential="!!instructions" />
         <template v-if="instructions">
           <p class="text-sm text-muted">
             {{
-              mode === 'local'
-                ? $t(
-                    'Ejecuta el cliente en el equipo que tiene el servicio de IA instalado. El administrador local configura el secreto del adaptador.',
-                  )
-                : $t(
-                    'Autoriza tu cuenta aquí y completa el inicio de sesión de Descope desde tu cliente.',
-                  )
+              $t(
+                'Autoriza tu cuenta aquí y completa el inicio de sesión de Descope desde tu cliente.',
+              )
             }}
           </p>
           <p class="text-sm text-muted">
@@ -141,32 +86,25 @@ function download() {
           <pre
             class="overflow-auto whitespace-pre-wrap break-all rounded-lg border border-default bg-muted p-3 text-sm"
             >{{ instructions.text }}</pre>
-          <div class="flex flex-wrap gap-2">
-            <UiCopyButton
-              :text="instructions.text"
-              :label="$t('Copiar configuración')"
-            />
-            <UiCopyButton
-              v-if="mode === 'remote' && oauthResourceUrl"
-              :text="oauthResourceUrl"
-              :label="$t('Copiar URL del MCP')"
-            />
-            <UButton
-              v-if="instructions.filename"
-              color="neutral"
-              variant="outline"
-              icon="i-lucide-download"
-              @click="download"
-              >{{ $t('Descargar plantilla') }}</UButton
-            >
-          </div>
-          <p
-            v-if="mode === 'remote' && client === 'codex'"
-            class="text-sm text-muted"
-          >
-            {{ $t('Para iniciar sesión desde la terminal:') }}
-            <code>codex mcp login ktsu-remoto</code>
+          <p class="text-sm text-muted">
+            {{
+              $t(
+                '«Copiar configuración» copia la skill ktsu-mcp completa con esta configuración: pégala en tu asistente para que la cree o la actualice y configure el servidor.',
+              )
+            }}
           </p>
+          <IntegrationsSkillViewer
+            :scope="scope"
+            skill-name="ktsu-mcp"
+            :context="mcpContext"
+            :copy-label="$t('Copiar configuración')"
+          />
+          <UiCopyButton
+            v-if="oauthResourceUrl"
+            :text="oauthResourceUrl"
+            :label="$t('Copiar URL del MCP')"
+          />
+          <p class="text-sm text-muted">{{ instructions.login }}</p>
           <p class="text-sm text-muted">
             {{ $t('Comprueba la conexión con') }}
             <code>get_project_overview</code>.
@@ -197,17 +135,13 @@ function download() {
           <code>--token-stdin</code>.
         </p>
         <slot name="cli" :method="cliMethod" />
+        <IntegrationsSkillViewer
+          :scope="scope"
+          skill-name="ktsu-cli"
+          :context="cliContext"
+          :copy-label="$t('Copiar skill completa')"
+        />
       </section>
     </template>
   </UiTabs>
-  <details
-    v-if="tab === 'mcp'"
-    class="mt-5 rounded-lg border border-default p-4"
-  >
-    <summary class="cursor-pointer font-medium">
-      {{ $t('Configurar con un agente externo') }}
-    </summary>
-    <p class="mt-3 whitespace-pre-wrap text-sm text-muted">{{ prompt }}</p>
-    <UiCopyButton :text="prompt" :label="$t('Copiar prompt')" class="mt-3" />
-  </details>
 </template>

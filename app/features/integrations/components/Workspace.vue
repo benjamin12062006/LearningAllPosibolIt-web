@@ -21,16 +21,6 @@ const { data, error, refresh } = useAsyncData(
 );
 const organization = computed(() => data.value?.organization);
 const archived = computed(() => !!organization.value?.archivedAt);
-const canUseLocal = computed(() => {
-  const { apiBaseUrl } = useRuntimeConfig().public;
-  try {
-    return ['127.0.0.1', 'localhost', '[::1]'].includes(
-      new URL(apiBaseUrl).hostname,
-    );
-  } catch {
-    return false;
-  }
-});
 const loadError = computed(() => accessError.value ?? error.value);
 
 async function retry() {
@@ -62,7 +52,6 @@ async function retry() {
         :archived="archived"
         :can-prepare="can('ai.use')"
         :can-manage="can('members.manage')"
-        :local="canUseLocal"
       />
       <IntegrationsKnowledgePanel
         :project-id="projectId"
