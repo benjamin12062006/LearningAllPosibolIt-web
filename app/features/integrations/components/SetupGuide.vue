@@ -2,7 +2,7 @@
 import {
   cliSetup,
   MCP_CLIENTS,
-  mcpSetup,
+  resolveMcpSetup,
   setupPrompt,
   type McpClient,
   type McpMode,
@@ -15,7 +15,15 @@ const props = defineProps<{
   local: boolean;
 }>();
 const tab = defineModel<'mcp' | 'cli'>('tab', { required: true });
-const mode = ref<McpMode>(props.oauthResourceUrl ? 'remote' : 'local');
+const selectedMode = ref<McpMode | null>(null);
+const mode = computed({
+  get: () =>
+    selectedMode.value ??
+    (props.oauthResourceUrl || !props.local ? 'remote' : 'local'),
+  set: (value: McpMode) => {
+    selectedMode.value = value;
+  },
+});
 const client = ref<McpClient>('codex');
 const webOrigin = useRequestURL().origin;
 const { apiBaseUrl } = useRuntimeConfig().public;
@@ -26,15 +34,10 @@ const setup = computed(() => ({
   webOrigin,
   projectId: props.projectId,
 }));
-const instructions = computed(() =>
-  mode.value === 'local' && !props.local ? null : mcpSetup(setup.value),
-);
-const prompt = computed(() =>
-  setupPrompt({
-    ...setup.value,
-    mode: mode.value === 'local' && !props.local ? 'remote' : mode.value,
-  }),
-);
+const resolved = computed(() => resolveMcpSetup(setup.value, props.local));
+const instructions = computed(() => resolved.value.instructions);
+const canIssueCredential = computed(() => resolved.value.status === 'ready');
+const prompt = computed(() => setupPrompt(setup.value, props.local));
 const cli = computed(() => cliSetup(apiBaseUrl));
 const tabs = [
   { value: 'mcp', label: 'MCP' },
@@ -71,12 +74,45 @@ function download() {
           </UFormField>
         </div>
         <UAlert
-          v-if="!instructions"
+          v-if="resolved.status === 'remote-resource-required'"
           color="neutral"
           variant="soft"
-          :title="$t('Transporte pendiente para este cliente o entorno')"
+          :title="
+            $t('OAuth remoto aún no está configurado para este proyecto.')
+          "
+          :description="
+            $t(
+              'La URL del MCP aparecerá cuando el administrador habilite el acceso remoto en KTSU.',
+            )
+          "
         />
-        <template v-else>
+        <UAlert
+          v-if="resolved.status === 'local-api-required'"
+          color="neutral"
+          variant="soft"
+          :title="$t('Emite la credencial en tu entorno local.')"
+          :description="
+            $t(
+              'Arranca Nest en tu equipo y abre KTSU conectado a esa API. Emite allí la credencial del proyecto local.',
+            )
+          "
+        />
+        <template v-if="resolved.status === 'local-client-unsupported'">
+          <UAlert
+            color="neutral"
+            variant="soft"
+            :title="$t('Este cliente usa OAuth remoto.')"
+          />
+          <UButton color="neutral" variant="outline" @click="mode = 'remote'">
+            {{ $t('Ver OAuth remoto') }}
+          </UButton>
+        </template>
+        <slot
+          name="mcp"
+          :mode="mode"
+          :can-issue-credential="canIssueCredential"
+        />
+        <template v-if="instructions">
           <p class="text-sm text-muted">
             {{
               mode === 'local'
@@ -84,7 +120,7 @@ function download() {
                     'Ejecuta el cliente en el equipo que tiene el servicio de IA instalado. El administrador local configura el secreto del adaptador.',
                   )
                 : $t(
-                    'Autoriza tu cuenta en KTSU y completa el inicio de sesión de Descope cuando el cliente lo abra.',
+                    'Autoriza tu cuenta aquí y completa el inicio de sesión de Descope desde tu cliente.',
                   )
             }}
           </p>
@@ -117,11 +153,18 @@ function download() {
               >{{ $t('Descargar plantilla') }}</UButton
             >
           </div>
+          <p
+            v-if="mode === 'remote' && client === 'codex'"
+            class="text-sm text-muted"
+          >
+            {{ $t('Para iniciar sesión desde la terminal:') }}
+            <code>codex mcp login ktsu-remoto</code>
+          </p>
+          <p class="text-sm text-muted">
+            {{ $t('Comprueba la conexión con') }}
+            <code>get_project_overview</code>.
+          </p>
         </template>
-        <p class="text-sm text-muted" role="status">
-          {{ $t('Conexión del cliente pendiente de comprobar.') }}
-        </p>
-        <slot name="mcp" :mode="mode" :can-configure="!!instructions" />
       </section>
     </template>
     <template #cli>
@@ -129,7 +172,7 @@ function download() {
         <p class="text-sm text-muted">
           {{
             $t(
-              'La CLI de KTSU está disponible en el repositorio como paquete privado. Desde la raíz del repositorio de Nest, instala el paquete con Node 24 o superior y ejecuta estos comandos desde tu terminal.',
+              'Instala la CLI privada desde el repositorio de Nest con Node 24 o superior.',
             )
           }}
         </p>
@@ -142,14 +185,11 @@ function download() {
           }}
           <code>--token-stdin</code>.
         </p>
+        <slot name="cli" />
         <pre
           class="overflow-auto whitespace-pre-wrap break-all rounded-lg border border-default bg-muted p-3 text-sm"
           >{{ cli }}</pre>
         <UiCopyButton :text="cli" :label="$t('Copiar comandos de CLI')" />
-        <p class="text-sm text-muted" role="status">
-          {{ $t('Conexión de la CLI pendiente de comprobar.') }}
-        </p>
-        <slot name="cli" />
       </section>
     </template>
   </UiTabs>

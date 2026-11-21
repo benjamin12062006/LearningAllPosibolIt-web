@@ -4,6 +4,7 @@ import type { Proposal } from '../../../app/features/assistant/types/assistant';
 import {
   cliSetup,
   mcpSetup,
+  resolveMcpSetup,
   setupPrompt,
 } from '../../../app/features/integrations/utils/setup';
 import { fakeApi } from '../support/fake-api';
@@ -22,8 +23,8 @@ describe('configuración pública de las integraciones', () => {
     const marker = 'SECRET_MARKER_DO_NOT_SHARE';
     const response = { ...publicSetup, issuedToken: marker };
     expect(mcpSetup(response)).toEqual({
-      filename: 'ktsu-mcp.toml',
-      text: '[mcp_servers.ktsu]\nurl = "https://mcp.example/mcp"',
+      filename: 'ktsu-mcp-remoto.toml',
+      text: '[mcp_servers.ktsu-remoto]\nurl = "https://mcp.example/mcp"',
     });
     expect(setupPrompt(response)).toContain(
       '/projects/the-project/integrations',
@@ -50,6 +51,31 @@ describe('configuración pública de las integraciones', () => {
     expect(mcpSetup({ ...publicSetup, client: 'chatgpt' })?.text).toContain(
       'Descope',
     );
+  });
+
+  it('mantiene visible la guía stdio con una API alojada y explica dónde emitir la credencial', () => {
+    const setup = { ...publicSetup, mode: 'local' as const };
+    expect(resolveMcpSetup(setup, false)).toMatchObject({
+      status: 'local-api-required',
+      instructions: { filename: 'ktsu-mcp.toml' },
+    });
+    expect(resolveMcpSetup(setup, true).status).toBe('ready');
+    expect(setupPrompt(setup, false)).toContain(
+      'Abre KTSU con la API Nest local',
+    );
+  });
+
+  it('distingue un cliente sin stdio de un proyecto sin OAuth', () => {
+    expect(
+      resolveMcpSetup(
+        { ...publicSetup, client: 'chatgpt', mode: 'local' },
+        true,
+      ),
+    ).toEqual({ status: 'local-client-unsupported', instructions: null });
+    expect(
+      resolveMcpSetup({ ...publicSetup, oauthResourceUrl: null }, false),
+    ).toEqual({ status: 'remote-resource-required', instructions: null });
+    expect(resolveMcpSetup(publicSetup, false).status).toBe('ready');
   });
 
   it('usa la credencial únicamente en la devolución del alta y confirma el hash visible', async () => {
