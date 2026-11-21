@@ -918,6 +918,9 @@ const messages: Record<string, string> = {
   "Vencido": "Expired",
   "Revocado": "Revoked",
   "Autorizar acceso": "Authorize access",
-  "Continúa con auth login siguiendo la skill.": "Continue with auth login by following the skill."
+  "Continúa con auth login siguiendo la skill.": "Continue with auth login by following the skill.",
+  "Ver skill": "View skill",
+  "Lee los archivos aquí o copia la skill completa para que tu asistente la cree o la actualice y siga sus instrucciones.": "Read the files here or copy the whole skill so your assistant can create or update it and follow its instructions.",
+  "«Copiar configuración» copia la skill ktsu-mcp completa con esta configuración: pégala en tu asistente para que la cree o la actualice y configure el servidor.": "“Copy configuration” copies the whole ktsu-mcp skill with this configuration: paste it into your assistant so it creates or updates the skill and sets up the server."
 };
 export default messages;

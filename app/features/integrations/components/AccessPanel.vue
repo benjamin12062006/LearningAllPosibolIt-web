@@ -16,7 +16,6 @@ const props = defineProps<{
   archived: boolean;
   canPrepare: boolean;
   canManage: boolean;
-  local: boolean;
 }>();
 const { $integrations } = useNuxtApp();
 const { state } = useAccess();
@@ -79,7 +78,6 @@ const createTitle = computed(() => {
   if (createAudience.value === 'cli_oauth') return 'Autorizar CLI con OAuth';
   if (createAudience.value === 'mcp_oauth')
     return 'Autorizar cuenta para OAuth';
-  if (createAudience.value === 'mcp') return 'Emitir credencial para MCP';
   if (createAudience.value === 'cli') return 'Emitir credencial para CLI';
   return 'Autorizar acceso';
 });
@@ -242,22 +240,18 @@ function showDate(value: string) {
   />
   <IntegrationsSetupGuide
     v-model:tab="tab"
-    :project-id="scope.projectId"
+    :scope="scope"
+    :project-name="projectName"
     :oauth-resource-url="oauthResourceUrl"
     :cli-o-auth-available="cliOAuthAvailable"
-    :local="local"
   >
-    <template #mcp="{ mode, canIssueCredential }">
+    <template #mcp="{ canIssueCredential }">
       <UButton
         v-if="!archived && canIssueCredential && userId"
         :disabled="loading || !!error"
-        @click="startCreate(mode === 'local' ? 'mcp' : 'mcp_oauth')"
+        @click="startCreate('mcp_oauth')"
       >
-        {{
-          mode === 'local'
-            ? $t('Emitir credencial para MCP')
-            : $t('Autorizar cuenta para OAuth')
-        }}
+        {{ $t('Autorizar cuenta para OAuth') }}
       </UButton>
     </template>
     <template #cli="{ method }">
@@ -272,7 +266,6 @@ function showDate(value: string) {
             : $t('Emitir credencial para CLI')
         }}
       </UButton>
-      <IntegrationsCliSkill :scope="scope" :project-name="projectName" />
     </template>
   </IntegrationsSetupGuide>
   <section class="mt-8 space-y-3">

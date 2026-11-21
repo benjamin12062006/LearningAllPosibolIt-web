@@ -245,9 +245,9 @@ function edit(
       <h2 class="text-xl font-semibold">Integraciones</h2>
       <IntegrationsSetupGuide
         v-model:tab="tab"
-        project-id="demostracion"
+        :scope="{ organizationId: 'demostracion', projectId: 'demostracion' }"
+        project-name="Demostración"
         oauth-resource-url="https://example.invalid/mcp"
-        local
       />
     </section>
   </main>
