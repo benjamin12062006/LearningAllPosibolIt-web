@@ -32,7 +32,8 @@ const issued = shallowRef<{ label: string; token: string } | null>(null);
 const revoking = shallowRef<Credential | null>(null);
 const createAudience = ref<CredentialAudience | null>(null);
 const label = ref('');
-const grantPrepare = ref(false);
+// Los cambios se aplican al momento, sin aprobación (plan 05 de cli en Nest).
+const grantPrepare = ref(true);
 const issueKey = ref('');
 const userId = computed(() =>
   state.value.status === 'ready' ? state.value.user.id : null,
@@ -128,7 +129,7 @@ function startCreate(audience: CredentialAudience) {
   if (props.archived || !userId.value || loading.value || error.value) return;
   issued.value = null;
   label.value = '';
-  grantPrepare.value = false;
+  grantPrepare.value = true;
   issueKey.value = '';
   createAudience.value = audience;
 }
@@ -288,7 +289,7 @@ function showDate(value: string) {
             {{ audienceLabels[item.audience] }} ·
             {{
               item.capabilities.includes('prepare')
-                ? $t('Lectura y propuestas')
+                ? $t('Lectura y cambios')
                 : $t('Solo lectura')
             }}
             · {{ $t(statusLabels[item.status]) }}
@@ -337,7 +338,7 @@ function showDate(value: string) {
       <UCheckbox
         v-if="props.canPrepare"
         v-model="grantPrepare"
-        :label="$t('Permitir preparar propuestas para revisión humana')"
+        :label="$t('Permitir cambios (se aplican al momento)')"
         :disabled="isRunning"
       />
       <p v-else class="text-sm">{{ $t('Alcance de solo lectura.') }}</p>

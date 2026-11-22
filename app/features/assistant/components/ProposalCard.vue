@@ -30,7 +30,7 @@ const failure = computed(() =>
   <section class="space-y-3 rounded-lg border border-ai bg-ai-wash p-3">
     <h3 class="flex gap-2 font-medium">
       <UIcon name="i-lucide-sparkles" aria-hidden="true" />
-      {{ $t(external ? 'Propuesta externa' : 'Propuesta del asistente') }}
+      {{ $t(external ? 'Cambio externo' : 'Cambio del asistente') }}
     </h3>
     <p class="whitespace-pre-wrap break-words text-sm">
       {{ proposal.summary }}
@@ -47,7 +47,7 @@ const failure = computed(() =>
       {{ $t('Propuesta rechazada.') }}
     </p>
     <p v-else-if="proposal.status === 'confirmed'" class="text-sm">
-      {{ $t('Propuesta confirmada.') }}
+      {{ $t('Cambio aplicado.') }}
     </p>
     <p v-else-if="proposal.status === 'failed'" class="text-sm text-error">
       {{ $t(external ? 'No se pudo aplicar la propuesta.' : 'No se pudo aplicar. El asistente sigue con el motivo:') }}
