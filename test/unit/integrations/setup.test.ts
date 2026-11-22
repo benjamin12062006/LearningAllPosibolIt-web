@@ -68,6 +68,28 @@ describe('configuración pública de las integraciones', () => {
     ).not.toContain(marker);
   });
 
+  it('usa una URL y un nombre propios para cada proyecto del MCP', () => {
+    const projectId = 'df68e46b-8e43-4a32-8ed1-da5405e2273c';
+    const url = `https://mcp.example/mcp?project=${projectId}`;
+    const scoped = { ...remote, oauthResourceUrl: url };
+    const context = mcpProjectContext(
+      scoped,
+      'https://ktsu.example',
+      project,
+      'Proyecto',
+    );
+    expect(context.mcpUrl).toBe(url);
+    expect(context.serverName).toBe(`ktsu-${projectId}`);
+    expect(context.configuration).toContain(`[mcp_servers.ktsu-${projectId}]`);
+    expect(context.login).toContain(`codex mcp login ktsu-${projectId}`);
+    expect(
+      mcpSetup({ ...scoped, oauthResourceUrl: `${url}&project=${projectId}` }),
+    ).toBeNull();
+    expect(
+      mcpSetup({ ...scoped, oauthResourceUrl: `${url}&token=secret` }),
+    ).toBeNull();
+  });
+
   it('copia la skill del MCP con la configuración del cliente elegido', async () => {
     const document = {
       name: 'ktsu-mcp',
