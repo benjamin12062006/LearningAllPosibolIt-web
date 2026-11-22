@@ -30,7 +30,7 @@ describe('configuración pública de las integraciones', () => {
     expect(mcpSetup(remote)).toEqual({
       text: '[mcp_servers.ktsu-remoto]\nurl = "https://mcp.example/mcp"',
       login:
-        'Añade el bloque a ~/.codex/config.toml y ejecuta codex mcp login ktsu-remoto.',
+        'Añade el bloque a ~/.codex/config.toml y ejecuta codex mcp login ktsu-remoto --scopes ktsu:mcp:read,ktsu:mcp:prepare.',
     });
     for (const { value } of MCP_CLIENTS) {
       const instructions = mcpSetup({ ...remote, client: value });

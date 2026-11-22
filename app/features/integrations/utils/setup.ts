@@ -19,6 +19,7 @@ export interface McpInstructions {
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 const SERVER_NAME = 'ktsu-remoto';
+const CODEX_LOGIN_SCOPES = 'ktsu:mcp:read,ktsu:mcp:prepare';
 
 /**
  * El MCP de KTSU es solo remoto (HTTP con OAuth de Descope). Sin la URL
@@ -83,7 +84,7 @@ function remoteSetup(client: McpClient, url: string): McpInstructions {
     case 'codex':
       return {
         text: `[mcp_servers.${SERVER_NAME}]\nurl = ${JSON.stringify(url)}`,
-        login: `Añade el bloque a ~/.codex/config.toml y ejecuta codex mcp login ${SERVER_NAME}.`,
+        login: `Añade el bloque a ~/.codex/config.toml y ejecuta codex mcp login ${SERVER_NAME} --scopes ${CODEX_LOGIN_SCOPES}.`,
       };
     case 'claude-code':
       return {
